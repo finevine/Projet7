@@ -69,7 +69,7 @@
 											"top": 233,
 											"width": 268,
 											"height": 13,
-											"text": "Client"
+											"text": "Static"
 										},
 										{
 											"_type": "LabelView",
@@ -237,7 +237,7 @@
 											"top": 233,
 											"width": 709,
 											"height": 13,
-											"text": "Server"
+											"text": "App"
 										},
 										{
 											"_type": "LabelView",
@@ -6359,14 +6359,6 @@
 				},
 				{
 					"_type": "UMLComponent",
-					"_id": "AAAAAAFvGQ0zY3oZsFA=",
-					"_parent": {
-						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
-					},
-					"name": "Component1"
-				},
-				{
-					"_type": "UMLComponent",
 					"_id": "AAAAAAFvGQ6+xnqrrwk=",
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
@@ -6511,7 +6503,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "Server"
+					"name": "App"
 				},
 				{
 					"_type": "UMLInterface",
@@ -6535,7 +6527,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFF+qBWK6M3Z8Y="
 					},
-					"name": "Client"
+					"name": "Static"
 				},
 				{
 					"_type": "UMLComponent",
