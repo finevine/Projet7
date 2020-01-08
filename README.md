@@ -10,5 +10,6 @@ This project is codded using Test Driven Development. Here are 2 videos about te
 
 ## Flask
 Useful ressources about Flask :
-- [flask_sqlalchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/)
+- [quick Start](https://flask.palletsprojects.com/en/1.1.x/quickstart/)
+- [flask_sqlalchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) but no DB is required for this project
 - [lesson OpenClassroom](https://openclassrooms.com/fr/courses/4425066-concevez-un-site-avec-flask)
