@@ -8,7 +8,7 @@ import requests
 import re
 from bs4 import BeautifulSoup
 
-place_searched = "Gaule"
+place_searched = "Paris"
 S = requests.Session()
 URL = "https://fr.wikipedia.org/w/api.php"
 
