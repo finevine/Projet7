@@ -1,13 +1,22 @@
-from flask import Flask, escape
+from flask import Flask, escape, render_template
+from datetime import datetime, date
 app = Flask(__name__)
 
 @app.route('/')
 def index():
     return 'Index Page'
 
+@app.route('/chat')
+@app.route('/chat/<username>')
+def chat(username=None):
+    today = date.today().strftime("%d/%m/%Y")
+    now = datetime.now().strftime("%H:%M")
+    return render_template('chat.html', name=username, time=now, date=today)
+
 @app.route('/hello')
-def hello():
-    return 'Hello, World'
+@app.route('/hello/<username>')
+def hello(username=None):
+    return render_template('test.html', name=username)
 
 @app.route('/user/<username>')
 def show_user_profile(username):
