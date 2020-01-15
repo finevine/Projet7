@@ -1,8 +1,11 @@
 import requests
 import re
+import os
+from dotenv import load_dotenv
 from bs4 import BeautifulSoup
-from config import GMAP_API_KEY
+load_dotenv()
 
+GMAP_API_KEY = os.environ["GMAP_API_KEY"]
 GMAP_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?'
 WIKI_API_URL = 'https://fr.wikipedia.org/w/api.php'
 SEARCH_HEADER = {
@@ -12,6 +15,7 @@ SEARCH_HEADER = {
 
 
 def get_place(name):
+
     search_param = {
         "input": name,
         "inputtype": "textquery",
@@ -26,9 +30,7 @@ def get_place(name):
     )
     return req.json()
 
-# print("https://maps.googleapis.com/maps/api/place/findplacefromtext/json?input=ribecourt&inputtype=textquery&fields=formatted_address,name,geometry&locationbias=circle:2000000@47.0359,2.7868&key=" + MAP_API_KEY)
-
-def get_stories(place_searched):
+def get_wikitext(place_searched):
     URL = "https://fr.wikipedia.org/w/api.php"
     search_param = {
         "action": "parse",
@@ -43,9 +45,12 @@ def get_stories(place_searched):
         params=search_param,
         headers=SEARCH_HEADER
     )
-    DATA = req.json()
+    return req.json()
 
-    HTML_code = DATA["parse"]["text"]["*"]
+def get_clean_stories(place_searched):
+    WikiText = get_wikitext(place_searched)
+    print(WikiText)
+    HTML_code = WikiText["parse"]["text"]["*"]
     soup = BeautifulSoup(HTML_code, 'html.parser')
     paragraphs = soup.find_all('p', class_=lambda x: x != 'mw-empty-elt')
 

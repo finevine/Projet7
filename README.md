@@ -3,6 +3,12 @@
 
 [Kanban of the project](https://github.com/finevine/Projet7/projects/3) is given to see were we go.
 
+## Setup
+Setup consist in creating a `.env` file in the main folder with this syntax :
+```
+GMAP_API_KEY=YourApiKeyWithoutQuote
+```
+
 ## TDD
 This project is codded using Test Driven Development. Here are 2 videos about testing programs :
 - [Rails Conf 2013 The Magic Tricks of Testing](https://youtu.be/URSWYvyc42M)
