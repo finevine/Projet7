@@ -92,13 +92,16 @@ class WikiPage():
         res = []
         # Delete Title wikitext part such as "== Présentation générale =="
         regex = re.compile(r"== \b[^==]+==", re.IGNORECASE)
-        sentences = regex.sub('', sentences)
+        sentences = regex.sub('', sentences).split(". ")
         # Check if the place is in the sentence (more than 80 char)
-        for sentence in sentences.split(". "):
+        for sentence in sentences:
             if len(sentence) >= 60 and self.place.lower() in sentence.lower():
                 res.append(sentence)
 
-        return res
+        if not res:
+            return sentences
+        else:
+            return res
 
 
 
