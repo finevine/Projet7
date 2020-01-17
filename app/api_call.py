@@ -27,7 +27,8 @@ class WikiPage():
         '''
         initialize an instance
         Would have been possible with
-        https://fr.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=Versailles'''
+        https://fr.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=Versailles
+        '''
         def get_wikiurl(place_searched):
             URL = "https://fr.wikipedia.org/w/api.php"
             search_param = {
@@ -67,8 +68,8 @@ class WikiPage():
             "action": "query",
             "titles": self.title,
             "prop": "extracts",
-            "explaintext": "true",
-            "exsentences": "10",
+            "explaintext": "true", # get plain text
+            "exsentences": "20", # number of sentences to get in the extract
             "format": "json"
         }
         # Request :
@@ -79,12 +80,18 @@ class WikiPage():
         )
         Data = req.json()
         print(req.url)
-        sentences = Data["query"]["pages"][self.pageid]["extract"]
-        sentences.encode('utf-8').decode("utf-8", "ignore")
-        # pdb.set_trace()
+
+        # replace end line by space and make unicode readable
+        sentences = Data["query"]["pages"][self.pageid]["extract"].replace('\n', ' ')
+        sentences.encode('utf-8').decode('utf-8')
+
         res = []
+        # Delete Title wikitext part such as "== Présentation générale =="
+        regex = re.compile(r"== \b[^==]+==", re.IGNORECASE)
+        sentences = regex.sub('', sentences)
+        # Check if the place is in the sentence (more than 150 char)
         for sentence in sentences.split(". "):
-            if len(sentence) >= 250 and self.place.lower() in sentence.lower():
+            if len(sentence) >= 150 and self.place.lower() in sentence.lower():
                 res.append(sentence)
 
         return res
