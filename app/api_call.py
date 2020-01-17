@@ -1,6 +1,8 @@
 import requests
 import re
 import os
+import pdb
+from unicodedata import normalize
 from dotenv import load_dotenv
 from bs4 import BeautifulSoup
 load_dotenv()
@@ -14,55 +16,117 @@ SEARCH_HEADER = {
     }
 
 
+#########################
+#     WIKIPEDIA         #
+#########################
+
+class WikiPage():
+    ''' represent the page found or not found '''
+
+    def __init__(self, place):
+        '''
+        initialize an instance
+        Would have been possible with
+        https://fr.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=Versailles'''
+        def get_wikiurl(place_searched):
+            URL = "https://fr.wikipedia.org/w/api.php"
+            search_param = {
+                "action": "query",
+                "srsearch": place_searched,
+                "list": "search",
+                "format": "json"
+            }
+            # pdb.set_trace()
+            # Request :
+            req = requests.get(
+                WIKI_API_URL,
+                params=search_param,
+                headers=SEARCH_HEADER
+            )
+            candidates = req.json()
+
+            # If no index error and unicode title is equal to research
+            try:
+                normalize('NFC', candidates['query']['search'][0]['title']) == normalize('NFC', place_searched)
+                return candidates['query']['search'][0]
+            except:
+                return ''
+        
+        self.place = place
+        self.pageid = str(get_wikiurl(place)['pageid'])
+        self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
+        self.title = get_wikiurl(place)['title']
+
+    def stories(self):
+        ''' to retrieve stories, we use extension called TextExtract
+        https://www.mediawiki.org/wiki/Extension:TextExtracts#Caveats
+        '''
+        URL = "https://fr.wikipedia.org/w/api.php"
+        # https://fr.m.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&exsentences=4&titles=Ch%C3%A2teau_de_Versailles
+        search_param = {
+            "action": "query",
+            "titles": self.title,
+            "prop": "extracts",
+            "explaintext": "true",
+            "exsentences": "10",
+            "format": "json"
+        }
+        # Request :
+        req = requests.get(
+            WIKI_API_URL,
+            params=search_param,
+            headers=SEARCH_HEADER
+        )
+        Data = req.json()
+        print(req.url)
+        sentences = Data["query"]["pages"][self.pageid]["extract"]
+        sentences.encode('utf-8').decode("utf-8", "ignore")
+        # pdb.set_trace()
+        res = []
+        for sentence in sentences.split(". "):
+            if len(sentence) >= 250 and self.place.lower() in sentence.lower():
+                res.append(sentence)
+
+        return res
+
+
+
+        # text = mwparserfromhell.parse(soup.get_text())
+        # sentences = []
+        # for sentence in text.split(". "):
+        #     if len(sentence) >= 250 and self.place.lower() in sentence.lower():
+        #         sentences.append(sentence)
+        # return sentences
+
+        ####################
+        # paragraphs = soup.find_all('p', class_=lambda x: x != 'mw-empty-elt')
+        # pdb.set_trace()
+        # sentences = []
+        # for paragraph in paragraphs[1:]:
+        #     for sentence in mwparserfromhell.parse(paragraph.get_text()).strip_code().split(". "):
+        #         if len(sentence) >= 100 and self.place.lower() in sentence.lower():
+        #             sentences.append(sentence)
+        # # regex = re.compile(r"\[(.*?)\]", re.IGNORECASE)
+        # # sentences = [regex.sub('', sentence.replace("\xa0", " ")) for sentence in sentences]
+        # return sentences
+
+
+#########################
+#     GMAP              #
+#########################
+
 def get_place(name):
-
-    search_param = {
-        "input": name,
-        "inputtype": "textquery",
-        "fields": "formatted_address,name,geometry",
-        "locationbias": "circle:2000000@47.0359,2.7868",
-        "key": GMAP_API_KEY
-    }
-    req = requests.get(
-        GMAP_API_URL,
-        params=search_param,
-        headers=SEARCH_HEADER
-    )
-    return req.json()
-
-def get_wikitext(place_searched):
-    URL = "https://fr.wikipedia.org/w/api.php"
-    search_param = {
-        "action": "parse",
-        "page": place_searched,
-        "prop": "text",
-        "section": "0",
-        "format": "json"
-    }
-
-    req = requests.get(
-        WIKI_API_URL,
-        params=search_param,
-        headers=SEARCH_HEADER
-    )
-    return req.json()
-
-def get_clean_stories(place_searched):
-    WikiText = get_wikitext(place_searched)
-    print(WikiText)
-    HTML_code = WikiText["parse"]["text"]["*"]
-    soup = BeautifulSoup(HTML_code, 'html.parser')
-    paragraphs = soup.find_all('p', class_=lambda x: x != 'mw-empty-elt')
-
-    sentences = []
-    for paragraph in paragraphs[1:]:
-        for sentence in paragraph.get_text().split(". "):
-            # WORK GREAT WITH PLACE WITHOUT SPECIAL CHAR
-            # TO BE REPLACED BY SOMETHING MORE ROBUST
-            if len(sentence) >= 250 and place_searched in sentence:
-                sentences.append(sentence)
-
-    regex = re.compile(r"\[(.*?)\]", re.IGNORECASE)
-    sentences = [regex.sub('', sentence.replace("\xa0", " ")) for sentence in sentences]
-
-    return sentences
+            ''' get Wikipedia pages candidates '''
+            search_param = {
+                "input": name,
+                "inputtype": "textquery",
+                "fields": "formatted_address,name,geometry",
+                "locationbias": "circle:2000000@47.0359,2.7868",
+                "key": GMAP_API_KEY
+            }
+            req = requests.get(
+                GMAP_API_URL,
+                params=search_param,
+                headers=SEARCH_HEADER
+            )
+            return req.json()
