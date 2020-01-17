@@ -51,10 +51,14 @@ class WikiPage():
                 normalize('NFC', candidates['query']['search'][0]['title']) == normalize('NFC', place_searched)
                 return candidates['query']['search'][0]
             except:
-                return ''
+                # Raise Error
+                return {
+                    "pageid": "None",
+                    "title": "None"
+                }
         
         self.place = place
-        self.pageid = str(get_wikiurl(place)['pageid'])
+        self.pageid = str(get_wikiurl(place).get('pageid'))
         self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
         self.title = get_wikiurl(place)['title']
 
@@ -89,9 +93,9 @@ class WikiPage():
         # Delete Title wikitext part such as "== Présentation générale =="
         regex = re.compile(r"== \b[^==]+==", re.IGNORECASE)
         sentences = regex.sub('', sentences)
-        # Check if the place is in the sentence (more than 150 char)
+        # Check if the place is in the sentence (more than 80 char)
         for sentence in sentences.split(". "):
-            if len(sentence) >= 150 and self.place.lower() in sentence.lower():
+            if len(sentence) >= 60 and self.place.lower() in sentence.lower():
                 res.append(sentence)
 
         return res
