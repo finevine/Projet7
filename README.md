@@ -1,7 +1,7 @@
 # Projet7 : Grandpy bot a bot for OpenClassrooms
 [Assignement](https://openclassrooms.com/fr/projects/158/assignment) is online.
 
-[Kanban of the project](https://github.com/finevine/Projet7/projects/3) is given to see were we go.
+[Kanban of the project](https://github.com/finevine/Projet7/projects/3) is given to see the roadmap.
 
 ## Setup
 Setup consist in creating a `.env` file in the main folder with this syntax :
