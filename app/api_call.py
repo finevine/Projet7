@@ -4,7 +4,7 @@ import os
 import pdb
 from unicodedata import normalize
 from dotenv import load_dotenv
-from bs4 import BeautifulSoup
+# from bs4 import BeautifulSoup
 load_dotenv()
 
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
@@ -22,14 +22,18 @@ SEARCH_HEADER = {
 
 class WikiPage():
     ''' represent the page found or not found '''
-
     def __init__(self, place):
         '''
-        initialize an instance
-        Would have been possible with
-        https://fr.wikipedia.org/w/api.php?format=json&action=query&prop=extracts&exintro&explaintext&redirects=1&titles=Versailles
-        '''
-        def get_wikiurl(place_searched):
+        Instance of WikiPage
+        ARGS :
+            place (str): place to find in Wikipedia'''
+
+        def get_wikipage(place_searched):
+            '''
+            Search a place on Wikipedia return the page with most authority and fitting best the request
+            ARGS:
+                place_searched (str): place to find on Wikipedia'''
+
             URL = "https://fr.wikipedia.org/w/api.php"
             search_param = {
                 "action": "query",
@@ -51,29 +55,68 @@ class WikiPage():
                 normalize('NFC', candidates['query']['search'][0]['title']) == normalize('NFC', place_searched)
                 return candidates['query']['search'][0]
             except:
-                # Raise Error
                 return {
-                    "pageid": "None",
-                    "title": "None"
+                    "pageid": None,
+                    "title": None
                 }
         
+        def get_coord(title):
+            '''
+            Retrieve geolocalization of a place
+            uses Wikimedia module called Geosearch
+            module is supported through the Extension:GeoData installed on Wikipedia
+            https://www.mediawiki.org/wiki/API:Geosearch
+
+            ARGS :
+                title (str): title of a Wikipedia page'''
+
+            URL = "https://fr.wikipedia.org/w/api.php"
+            search_param = {
+                "action": "query",
+                "titles": title,
+                "prop": "coordinates",
+                "format": "json"
+            }
+            # Set default values to None
+            default_dic = {"coordinates":[{'lat': None, 'lon': None}]}
+            coordinates = {}
+
+            # Request geoloc if title exist
+            if title:
+                req = requests.get(
+                    WIKI_API_URL,
+                    params=search_param,
+                    headers=SEARCH_HEADER
+                )
+                Data = req.json()
+                print(req.url)
+                coordinates = Data["query"]["pages"].get(self.pageid, default_dic)["coordinates"][0]
+            return {"lat": coordinates.get('lat'), "lon": coordinates.get('lon')}
+
+        wikiurl = get_wikipage(place)
         self.place = place
-        self.pageid = str(get_wikiurl(place).get('pageid'))
+        self.pageid = str(wikiurl.get('pageid'))
         self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
-        self.title = get_wikiurl(place)['title']
+        self.title = wikiurl['title']
+        coord = get_coord(self.title)
+        self.lat = coord["lat"]
+        self.lon = coord["lon"]
 
     def stories(self):
-        ''' to retrieve stories, we use extension called TextExtract
-        https://www.mediawiki.org/wiki/Extension:TextExtracts#Caveats
         '''
+        Retrieve stories about a place
+        uses Wikimedia extension called TextExtract
+        https://www.mediawiki.org/wiki/Extension:TextExtracts#Caveats
+        return:
+            list of sentences found about the instance'''
+        
         URL = "https://fr.wikipedia.org/w/api.php"
-        # https://fr.m.wikipedia.org/w/api.php?action=query&prop=extracts&explaintext=true&exsentences=4&titles=Ch%C3%A2teau_de_Versailles
         search_param = {
             "action": "query",
             "titles": self.title,
             "prop": "extracts",
             "explaintext": "true", # get plain text
-            "exsentences": "20", # number of sentences to get in the extract
+            "exsentences": "10", # number of sentences to get in the extract
             "format": "json"
         }
         # Request :
@@ -86,13 +129,16 @@ class WikiPage():
         print(req.url)
 
         # replace end line by space and make unicode readable
-        sentences = Data["query"]["pages"][self.pageid]["extract"].replace('\n', ' ')
-        sentences.encode('utf-8').decode('utf-8')
+        if self.pageid != 'None':
+            sentences = Data["query"]["pages"][self.pageid]["extract"].replace('\n', ' ')
+            sentences.encode('utf-8').decode('utf-8')
+        else:
+            sentences = ''
 
         res = []
         # Delete Title wikitext part such as "== Présentation générale =="
-        regex = re.compile(r"== \b[^==]+==", re.IGNORECASE)
-        sentences = regex.sub('', sentences).split(". ")
+        wikiTitles = re.compile(r"== \b[^==]+==", re.IGNORECASE)
+        sentences = wikiTitles.sub('', sentences).split(". ")
         # Check if the place is in the sentence (more than 80 char)
         for sentence in sentences:
             if len(sentence) >= 60 and self.place.lower() in sentence.lower():
@@ -103,34 +149,30 @@ class WikiPage():
         else:
             return res
 
+    def __repr__(self):
+        '''
+        print an instance'''
 
-
-        # text = mwparserfromhell.parse(soup.get_text())
-        # sentences = []
-        # for sentence in text.split(". "):
-        #     if len(sentence) >= 250 and self.place.lower() in sentence.lower():
-        #         sentences.append(sentence)
-        # return sentences
-
-        ####################
-        # paragraphs = soup.find_all('p', class_=lambda x: x != 'mw-empty-elt')
-        # pdb.set_trace()
-        # sentences = []
-        # for paragraph in paragraphs[1:]:
-        #     for sentence in mwparserfromhell.parse(paragraph.get_text()).strip_code().split(". "):
-        #         if len(sentence) >= 100 and self.place.lower() in sentence.lower():
-        #             sentences.append(sentence)
-        # # regex = re.compile(r"\[(.*?)\]", re.IGNORECASE)
-        # # sentences = [regex.sub('', sentence.replace("\xa0", " ")) for sentence in sentences]
-        # return sentences
-
+        if self.title:
+            return self.place + \
+                "\ntitle: " + self.title + \
+                "\nurl: " + self.url + \
+                "\n(lat, lon): (" + str(self.lat) + ", " + str(self.lon) + ")\n"
+        else:
+            return 'Not found on Wikipedia'
 
 #########################
 #     GMAP              #
 #########################
 
-def get_place(name):
-            ''' get Wikipedia pages candidates '''
+def find_place(name):
+            '''
+            find a place on Google Map
+            ARGS:
+                name (str): place to find on Google Map
+            return:
+                a json of the request'''
+
             search_param = {
                 "input": name,
                 "inputtype": "textquery",
