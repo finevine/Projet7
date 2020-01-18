@@ -18,10 +18,10 @@ def chat(username=None):
 def hello(username=None):
     return render_template('test.html', name=username)
 
-@app.route('/user/<username>')
-def show_user_profile(username):
-    # show the user profile for that user
-    return 'User %s' % escape(username)
+# @app.route('/post')
+# def reponse_AJAX(XXXXXXX):
+#     # show the user profile for that user
+#     return fonction_python(XXXXXXX)
 
 @app.route('/post/<int:post_id>')
 def show_post(post_id):

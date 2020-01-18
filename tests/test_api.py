@@ -28,7 +28,8 @@ def test_get_place(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
     # app.get_json, which contains requests.get, uses the monkeypatch
-    result = api_call.get_place("fakeplace")
+    place = api_call.Answer("fakeplace")
+    result = place.find_place()
     assert result["candidates"][0]["formatted_address"] == "Place d'Armes, 78000 Versailles, France"
 
 

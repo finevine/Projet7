@@ -16,11 +16,7 @@ SEARCH_HEADER = {
     }
 
 
-#########################
-#     WIKIPEDIA         #
-#########################
-
-class WikiPage():
+class API_Answer():
     ''' represent the page found or not found '''
     def __init__(self, place):
         '''
@@ -28,79 +24,80 @@ class WikiPage():
         ARGS :
             place (str): place to find in Wikipedia'''
 
-        def get_wikipage(place_searched):
-            '''
-            Search a place on Wikipedia return the page with most authority and fitting best the request
-            ARGS:
-                place_searched (str): place to find on Wikipedia'''
+        wikiurl = self._get_wikipage(place)
+        self.place = place
+        self.pageid = str(wikiurl.get("pageid", None))
+        self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
+        self.title = wikiurl['title']
+        coord = self.get_coord()
+        self.lat = coord["lat"]
+        self.lon = coord["lon"]
 
-            URL = "https://fr.wikipedia.org/w/api.php"
-            search_param = {
-                "action": "query",
-                "srsearch": place_searched,
-                "list": "search",
-                "format": "json"
+    #########################
+    #     WIKIPEDIA         #
+    #########################
+
+    def _get_wikipage(self, place_searched):
+        '''
+        Search a place on Wikipedia return the page with most authority and fitting best the request
+        ARGS:
+            place_searched (str): place to find on Wikipedia'''
+
+        URL = "https://fr.wikipedia.org/w/api.php"
+        search_param = {
+            "action": "query",
+            "srsearch": place_searched,
+            "list": "search",
+            "format": "json"
+        }
+        # pdb.set_trace()
+        # Request :
+        req = requests.get(
+            WIKI_API_URL,
+            params=search_param,
+            headers=SEARCH_HEADER
+        )
+        candidates = req.json()
+
+        # If no index error and unicode title is equal to research
+        try:
+            normalize("NFC", candidates['query']['search'][0]['title']) == normalize('NFC', place_searched)
+            return candidates['query']['search'][0]
+        except:
+            return {
+                "pageid": None,
+                "title": None
             }
-            # pdb.set_trace()
-            # Request :
+    
+    def get_coord(self):
+        '''
+        Retrieve geolocalization of a place
+        uses Wikimedia module called Geosearch
+        module is supported through the Extension:GeoData installed on Wikipedia
+        https://www.mediawiki.org/wiki/API:Geosearch'''
+
+        URL = "https://fr.wikipedia.org/w/api.php"
+        search_param = {
+            "action": "query",
+            "titles": self.title,
+            "prop": "coordinates",
+            "format": "json"
+        }
+        # Set default values to None
+        default_dic = {"coordinates":[{'lat': None, 'lon': None}]}
+        coordinates = {}
+
+        # Request geoloc if title exist
+        if self.title:
             req = requests.get(
                 WIKI_API_URL,
                 params=search_param,
                 headers=SEARCH_HEADER
             )
-            candidates = req.json()
-
-            # If no index error and unicode title is equal to research
-            try:
-                normalize('NFC', candidates['query']['search'][0]['title']) == normalize('NFC', place_searched)
-                return candidates['query']['search'][0]
-            except:
-                return {
-                    "pageid": None,
-                    "title": None
-                }
-        
-        def get_coord(title):
-            '''
-            Retrieve geolocalization of a place
-            uses Wikimedia module called Geosearch
-            module is supported through the Extension:GeoData installed on Wikipedia
-            https://www.mediawiki.org/wiki/API:Geosearch
-
-            ARGS :
-                title (str): title of a Wikipedia page'''
-
-            URL = "https://fr.wikipedia.org/w/api.php"
-            search_param = {
-                "action": "query",
-                "titles": title,
-                "prop": "coordinates",
-                "format": "json"
-            }
-            # Set default values to None
-            default_dic = {"coordinates":[{'lat': None, 'lon': None}]}
-            coordinates = {}
-
-            # Request geoloc if title exist
-            if title:
-                req = requests.get(
-                    WIKI_API_URL,
-                    params=search_param,
-                    headers=SEARCH_HEADER
-                )
-                Data = req.json()
-                print(req.url)
-                coordinates = Data["query"]["pages"].get(self.pageid, default_dic)["coordinates"][0]
-            return {"lat": coordinates.get('lat'), "lon": coordinates.get('lon')}
-
-        wikiurl = get_wikipage(place)
-        self.place = place
-        self.pageid = str(wikiurl.get('pageid'))
-        self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
-        self.title = wikiurl['title']
-        coord = get_coord(self.title)
-        self.lat = coord["lat"]
-        self.lon = coord["lon"]
+            Data = req.json()
+            # Régler le problème des pages avec title mais pas de coordonnées
+            coordinates = Data["query"]["pages"].get(self.pageid, default_dic)["coordinates"][0]
+        return {"lat": coordinates.get('lat'), "lon": coordinates.get('lon')}
 
     def stories(self):
         '''
@@ -129,7 +126,7 @@ class WikiPage():
         print(req.url)
 
         # replace end line by space and make unicode readable
-        if self.pageid != 'None':
+        if self.pageid:
             sentences = Data["query"]["pages"][self.pageid]["extract"].replace('\n', ' ')
             sentences.encode('utf-8').decode('utf-8')
         else:
@@ -149,6 +146,36 @@ class WikiPage():
         else:
             return res
 
+    #########################
+    #     GMAP              #
+    #########################
+
+    def find_place(self):
+        '''
+        find a place on Google Map
+        ARGS:
+            name (str): place to find on Google Map
+        return:
+            a json of the request'''
+
+        search_param = {
+            "input": self.place,
+            "inputtype": "textquery",
+            "fields": "formatted_address,name,geometry",
+            "locationbias": "circle:2000000@47.0359,2.7868",
+            "key": GMAP_API_KEY
+        }
+        req = requests.get(
+            GMAP_API_URL,
+            params=search_param,
+            headers=SEARCH_HEADER
+        )
+        return req.json()
+
+    #########################
+    #     MAGIC METHODS     #
+    #########################
+
     def __repr__(self):
         '''
         print an instance'''
@@ -160,29 +187,3 @@ class WikiPage():
                 "\n(lat, lon): (" + str(self.lat) + ", " + str(self.lon) + ")\n"
         else:
             return 'Not found on Wikipedia'
-
-#########################
-#     GMAP              #
-#########################
-
-def find_place(name):
-            '''
-            find a place on Google Map
-            ARGS:
-                name (str): place to find on Google Map
-            return:
-                a json of the request'''
-
-            search_param = {
-                "input": name,
-                "inputtype": "textquery",
-                "fields": "formatted_address,name,geometry",
-                "locationbias": "circle:2000000@47.0359,2.7868",
-                "key": GMAP_API_KEY
-            }
-            req = requests.get(
-                GMAP_API_URL,
-                params=search_param,
-                headers=SEARCH_HEADER
-            )
-            return req.json()
