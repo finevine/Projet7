@@ -8,7 +8,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
-GMAP_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?'
+GMAP_API_URL = \
+    'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?'
 WIKI_API_URL = 'https://fr.wikipedia.org/w/api.php'
 SEARCH_HEADER = {
     "user-agent": "GrandPy - https://github.com/finevine/Projet7",
@@ -22,16 +23,40 @@ class API_Answer():
         '''
         Instance of WikiPage
         ARGS :
-            place (str): place to find in Wikipedia'''
+            place (str): place to find in Wikipedia
+        return:
+            place (str)
+            pageid (str) : wikipedia page ID
+            url (str) : URL of wikipedia
+            title (str) : wikipedia title
+            formatted_address (str) : Google Map address
+            stories (list) : stories parsed from wikipedia
+            accurate (bool) : if stories match to coordinates
+            lat (float)
+            lon (float)'''
 
-        wikiurl = self._get_wikipage(place)
+        # Get wikipage attributes
+        wikiPageJson = self._get_wikipage(place)
         self.place = place
-        self.pageid = str(wikiurl.get("pageid", None))
+        self.pageid = str(wikiPageJson.get("pageid", None))
         self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
-        self.title = wikiurl['title']
-        coord = self.get_coord()
-        self.lat = coord["lat"]
-        self.lon = coord["lon"]
+        self.title = wikiPageJson['title']
+
+        # Get wiki coordinates
+        self.lat, self.lon = None, None
+        self.accurate = False
+        self.get_wikicoord()
+
+        # Get address on Google MAP and if necessary get coord
+        self.formatted_address = ""
+        self.get_gmapaddress()
+
+        # Get stories to tell
+        self.stories = []
+        self.stories = self.get_wikistories()
+
+        # print(wikiurl)
+        # print(self.url, self.title, sep="\n")
 
     #########################
     #     WIKIPEDIA         #
@@ -39,11 +64,14 @@ class API_Answer():
 
     def _get_wikipage(self, place_searched):
         '''
-        Search a place on Wikipedia return the page with most authority and fitting best the request
+        Search a place on Wikipedia return the json page
+        with most authority and fitting best the request.
         ARGS:
-            place_searched (str): place to find on Wikipedia'''
+            place_searched (str): place to find on Wikipedia
+        return:
+            (dic): first result of wikipedia if pagetitle = place_searched
+                    {"pageid": None,"title": None} otherwise'''
 
-        URL = "https://fr.wikipedia.org/w/api.php"
         search_param = {
             "action": "query",
             "srsearch": place_searched,
@@ -61,22 +89,25 @@ class API_Answer():
 
         # If no index error and unicode title is equal to research
         try:
-            normalize("NFC", candidates['query']['search'][0]['title']) == normalize('NFC', place_searched)
+            normalize("NFC", candidates['query']['search'][0]['title']) \
+                == normalize('NFC', place_searched)
             return candidates['query']['search'][0]
         except:
             return {
                 "pageid": None,
                 "title": None
             }
-    
-    def get_coord(self):
+
+    def get_wikicoord(self):
         '''
         Retrieve geolocalization of a place
         uses Wikimedia module called Geosearch
-        module is supported through the Extension:GeoData installed on Wikipedia
-        https://www.mediawiki.org/wiki/API:Geosearch'''
+        module is supported through the Extension:GeoData
+        installed on Wikipedia
+        https://www.mediawiki.org/wiki/API:Geosearch
+        return:
+            (dic) if found on Wikipedia, "lat", "lon"'''
 
-        URL = "https://fr.wikipedia.org/w/api.php"
         search_param = {
             "action": "query",
             "titles": self.title,
@@ -84,10 +115,11 @@ class API_Answer():
             "format": "json"
         }
         # Set default values to None
-        default_dic = {"coordinates":[{'lat': None, 'lon': None}]}
+        default_list = [{'lat': None, 'lon': None}]
+        default_dic = {"coordinates": [{'lat': None, 'lon': None}]}
         coordinates = {}
 
-        # Request geoloc if title exist
+        # Request geoloc if title and coodinates exist
         if self.title:
             req = requests.get(
                 WIKI_API_URL,
@@ -95,25 +127,28 @@ class API_Answer():
                 headers=SEARCH_HEADER
             )
             Data = req.json()
-            # Régler le problème des pages avec title mais pas de coordonnées
-            coordinates = Data["query"]["pages"].get(self.pageid, default_dic)["coordinates"][0]
-        return {"lat": coordinates.get('lat'), "lon": coordinates.get('lon')}
+            coordinates = Data["query"]["pages"].get(self.pageid, default_dic)\
+                .get("coordinates", default_list)[0]
 
-    def stories(self):
+        self.lat = coordinates.get('lat')
+        self.lon = coordinates.get('lon')
+        if self.lat and self.lon:
+            self.accurate = True
+
+    def get_wikistories(self):
         '''
         Retrieve stories about a place
         uses Wikimedia extension called TextExtract
         https://www.mediawiki.org/wiki/Extension:TextExtracts#Caveats
         return:
             list of sentences found about the instance'''
-        
-        URL = "https://fr.wikipedia.org/w/api.php"
+
         search_param = {
             "action": "query",
             "titles": self.title,
             "prop": "extracts",
-            "explaintext": "true", # get plain text
-            "exsentences": "10", # number of sentences to get in the extract
+            "explaintext": "true",  # get plain text
+            "exsentences": "5",  # number of sentences to get in the extract
             "format": "json"
         }
         # Request :
@@ -123,11 +158,11 @@ class API_Answer():
             headers=SEARCH_HEADER
         )
         Data = req.json()
-        print(req.url)
 
         # replace end line by space and make unicode readable
         if self.pageid:
-            sentences = Data["query"]["pages"][self.pageid]["extract"].replace('\n', ' ')
+            sentences = Data["query"]["pages"][self.pageid]["extract"]\
+                .replace('\n', ' ')
             sentences.encode('utf-8').decode('utf-8')
         else:
             sentences = ''
@@ -140,7 +175,6 @@ class API_Answer():
         for sentence in sentences:
             if len(sentence) >= 60 and self.place.lower() in sentence.lower():
                 res.append(sentence)
-
         if not res:
             return sentences
         else:
@@ -150,13 +184,13 @@ class API_Answer():
     #     GMAP              #
     #########################
 
-    def find_place(self):
+    def get_gmapaddress(self):
         '''
         find a place on Google Map
         ARGS:
             name (str): place to find on Google Map
         return:
-            a json of the request'''
+            json of the request'''
 
         search_param = {
             "input": self.place,
@@ -170,7 +204,15 @@ class API_Answer():
             params=search_param,
             headers=SEARCH_HEADER
         )
-        return req.json()
+
+        Data = req.json()
+        if Data["status"] != "OK":
+            pass
+        else:
+            Best_res = Data["candidates"][0]
+            self.formatted_address = Best_res["formatted_address"]
+            location = Best_res["geometry"]["location"]
+            self.lat, self.lon = location["lat"], location["lng"]
 
     #########################
     #     MAGIC METHODS     #
@@ -180,10 +222,18 @@ class API_Answer():
         '''
         print an instance'''
 
-        if self.title:
+        stories = ''
+        for story in self.stories:
+            stories += story + ", "
+        if self.title or self.formatted_address:
             return self.place + \
                 "\ntitle: " + self.title + \
                 "\nurl: " + self.url + \
-                "\n(lat, lon): (" + str(self.lat) + ", " + str(self.lon) + ")\n"
+                "\n(lat, lon): (" + str(self.lat) + \
+                ", " + str(self.lon) + ")" + \
+                "\nadresse: " + self.formatted_address + \
+                "\nprécis: " + str(self.accurate) + \
+                "\nhistoires: " + stories + "\n"
+
         else:
-            return 'Not found on Wikipedia'
+            return 'Not found'

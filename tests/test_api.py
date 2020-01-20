@@ -1,7 +1,5 @@
 import requests
 import json
-import os
-from io import BytesIO
 from app import api_call
 
 
@@ -9,13 +7,13 @@ class MockGmapResponse:
     @staticmethod
     def json():
         return {
-                "candidates" : [
+                "candidates": [
                     {
-                        "formatted_address" : "Place d'Armes, 78000 Versailles, France",
-                        "name" : "Château de Versailles"
+                        "formatted_address": "Place d'Armes, 78000 Versailles, France",
+                        "name": "Château de Versailles"
                     }
                 ],
-                "status" : "OK"
+                "status": "OK"
                 }
 
 
@@ -28,7 +26,7 @@ def test_get_place(monkeypatch):
     monkeypatch.setattr(requests, "get", mock_get)
 
     # app.get_json, which contains requests.get, uses the monkeypatch
-    place = api_call.Answer("fakeplace")
+    place = api_call.API_Answer("fakeplace")
     result = place.find_place()
     assert result["candidates"][0]["formatted_address"] == "Place d'Armes, 78000 Versailles, France"
 
@@ -37,7 +35,7 @@ class MockWikiResponse:
     @staticmethod
     def json():
         with open("tests/Versailles.json", "r") as json_file:
-            res = json.dumps(json_file)     
+            res = json.dumps(json_file)
         res.replace('"', '\\"')
         res.replace("'", '"')
         return res
