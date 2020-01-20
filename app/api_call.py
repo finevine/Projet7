@@ -38,8 +38,9 @@ class API_Answer():
         # Get wikipage attributes
         wikiPageJson = self._get_wikipage(place)
         self.place = place
-        self.pageid = str(wikiPageJson.get("pageid", None))
-        self.url = "https://fr.wikipedia.org/w/index.php?curid=" + self.pageid
+        self.pageid = wikiPageJson.get("pageid", None)
+        self.url = "https://fr.wikipedia.org/w/index.php?curid=" \
+            + str(self.pageid)
         self.title = wikiPageJson['title']
 
         # Get wiki coordinates
@@ -115,8 +116,8 @@ class API_Answer():
             "format": "json"
         }
         # Set default values to None
-        default_list = [{'lat': None, 'lon': None}]
-        default_dic = {"coordinates": [{'lat': None, 'lon': None}]}
+        default_list = [{'lat': 0, 'lon': 0}]
+        default_dic = {"coordinates": [{'lat': 0, 'lon': 0}]}
         coordinates = {}
 
         # Request geoloc if title and coodinates exist
@@ -127,13 +128,15 @@ class API_Answer():
                 headers=SEARCH_HEADER
             )
             Data = req.json()
-            coordinates = Data["query"]["pages"].get(self.pageid, default_dic)\
-                .get("coordinates", default_list)[0]
+            coordinates = Data["query"]["pages"].get(
+                str(self.pageid), default_dic)\
+                .get(
+                    "coordinates", default_list
+                    )[0]
 
         self.lat = coordinates.get('lat')
         self.lon = coordinates.get('lon')
-        if self.lat and self.lon:
-            self.accurate = True
+        # print("wikilat = " + str(self.lat))
 
     def get_wikistories(self):
         '''
@@ -161,7 +164,7 @@ class API_Answer():
 
         # replace end line by space and make unicode readable
         if self.pageid:
-            sentences = Data["query"]["pages"][self.pageid]["extract"]\
+            sentences = Data["query"]["pages"][str(self.pageid)]["extract"]\
                 .replace('\n', ' ')
             sentences.encode('utf-8').decode('utf-8')
         else:
@@ -171,7 +174,7 @@ class API_Answer():
         # Delete Title wikitext part such as "== Présentation générale =="
         wikiTitles = re.compile(r"== \b[^==]+==", re.IGNORECASE)
         sentences = wikiTitles.sub('', sentences).split(". ")
-        # Check if the place is in the sentence (more than 80 char)
+        # Check if the place is in the sentence (more than XX char)
         for sentence in sentences:
             if len(sentence) >= 60 and self.place.lower() in sentence.lower():
                 res.append(sentence)
@@ -212,7 +215,11 @@ class API_Answer():
             Best_res = Data["candidates"][0]
             self.formatted_address = Best_res["formatted_address"]
             location = Best_res["geometry"]["location"]
+            # accurate = "wikicoord == gmapcoord"
+            self.accurate = round(self.lat, 3) == round(location["lat"], 3) \
+                and round(self.lon, 3) == round(location["lng"], 3)
             self.lat, self.lon = location["lat"], location["lng"]
+            # print("googlelat = " + str(self.lat))
 
     #########################
     #     MAGIC METHODS     #
