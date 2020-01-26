@@ -8,6 +8,7 @@
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
+	<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
 </head>
 
@@ -65,9 +66,11 @@
 
 					<div class="card-footer">
 						<div class="input-group">
-							<textarea name="" class="form-control type_msg" placeholder="Type your message..."></textarea>
-							<div class="input-group-append">
-								<span class="input-group-text send_btn"><i class="fas fa-paper-plane"></i></span>
+							<input type="textarea" id="messageToSend" name="" class="form-control type_msg" placeholder="Type your message..."></input>
+							<div class="input-group-append"> 
+								<span class="input-group-text send_btn" id="buttonToSend" onclick="get_answer(
+									document.getElementById('messageToSend').value)"><i class="fas fa-paper-plane"></i>
+								</span>
 							</div>
 						</div>
 					</div>
@@ -76,5 +79,15 @@
 			</div>
 		</div>
 	</div>
+	<script>
+		// Script to press buttonToSend if enter is pressed
+		var input = document.getElementById("messageToSend");
+		input.addEventListener("keyup", function(event) {
+		  if (event.keyCode === 13) {
+		   event.preventDefault();
+		   document.getElementById("buttonToSend").click();
+		  }
+		});
+	</script>
 </body>
 </html>

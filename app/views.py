@@ -1,5 +1,6 @@
 from flask import Flask, escape, render_template
 from datetime import datetime, date
+from app import models
 app = Flask(__name__)
 
 @app.route('/')
@@ -9,19 +10,17 @@ def index():
 @app.route('/chat')
 @app.route('/chat/<username>')
 def chat(username=None):
+    '''
+    path to chat'''
     today = date.today().strftime("%d/%m/%Y")
     now = datetime.now().strftime("%H:%M")
     return render_template('chat.html', name=username, time=now, date=today)
 
-@app.route('/hello')
-@app.route('/hello/<username>')
-def hello(username=None):
-    return render_template('test.html', name=username)
-
-# @app.route('/post')
-# def reponse_AJAX(XXXXXXX):
-#     # show the user profile for that user
-#     return fonction_python(XXXXXXX)
+@app.route('/answer/<string:question>')
+def requete_AJAX(question):
+    '''
+    AJAX request calls this function.'''
+    return models.AJAX_repare(question)
 
 @app.route('/post/<int:post_id>')
 def show_post(post_id):
