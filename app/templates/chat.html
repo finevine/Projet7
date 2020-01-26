@@ -33,11 +33,11 @@
 					</div>
 
 
-					<div class="card-body msg_card_body">
+					<div id="chat_body" class="card-body msg_card_body">
 
 						<div class="d-flex justify-content-start mb-4">
 							<div class="img_cont_msg">
-								<img src="{{ url_for('static', filename='img/grandpy.jpg') }}" class="rounded-circle user_img_msg">
+								<img src="{{ url_for('static', filename='img/grandpy.jpg') }}" class="img_cont_msg rounded-circle user_img_msg">
 							</div>
 							<div class="msg_cotainer">
 								Salut 
@@ -69,7 +69,8 @@
 							<input type="textarea" id="messageToSend" name="" class="form-control type_msg" placeholder="Type your message..."></input>
 							<div class="input-group-append"> 
 								<span class="input-group-text send_btn" id="buttonToSend" onclick="get_answer(
-									document.getElementById('messageToSend').value)"><i class="fas fa-paper-plane"></i>
+									document.getElementById('messageToSend').value);">
+									<i class="fas fa-paper-plane"></i>
 								</span>
 							</div>
 						</div>

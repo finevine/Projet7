@@ -245,5 +245,6 @@ class API_Answer():
         else:
             return 'Not found'
 
-def AJAX_repare(arg):
-    return arg + "blabla2"
+def AJAX_answer(question):
+    answer = API_Answer(question)
+    return answer

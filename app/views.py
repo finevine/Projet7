@@ -20,7 +20,7 @@ def chat(username=None):
 def requete_AJAX(question):
     '''
     AJAX request calls this function.'''
-    return models.AJAX_repare(question)
+    return models.AJAX_answer(question).formatted_address
 
 @app.route('/post/<int:post_id>')
 def show_post(post_id):
