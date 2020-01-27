@@ -56,6 +56,13 @@ class API_Answer():
         self.stories = []
         self.stories = self.get_wikistories()
 
+        self.json = {
+            "formatted_address": self.formatted_address,
+            "accurate": self.accurate,
+            "title": self.title,
+            "stories": self.stories
+        }
+
         # print(wikiurl)
         # print(self.url, self.title, sep="\n")
 
@@ -246,5 +253,7 @@ class API_Answer():
             return 'Not found'
 
 def AJAX_answer(question):
+    '''
+    This function returns the json of the instance'''
     answer = API_Answer(question)
-    return answer
+    return answer.json
