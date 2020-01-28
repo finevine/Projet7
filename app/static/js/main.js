@@ -1,7 +1,7 @@
 function get_answer(question) {
     var xhr = new XMLHttpRequest(),
         method = "GET",
-        url = "/answer/" + question;
+        url = "/answer?question=" + question;
 
     xhr.open(method, url, true);
     xhr.setRequestHeader('Content-Type', 'application/json');
