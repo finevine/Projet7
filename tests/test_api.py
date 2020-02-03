@@ -1,82 +1,79 @@
 import requests
 import json
-from app import api_call
+from io import BytesIO
+from app import models
+import pdb
 
 # 
 # 
 # palais de justice versailles à tester
 # 
 
-class MockGmapResponse:
+class MockAPIResponse:
     @staticmethod
     def json():
         return {
-                "candidates": [
-                    {
-                        "formatted_address": "Place d'Armes, 78000 Versailles, France",
-                        "name": "Château de Versailles"
-                    }
-                ],
-                "status": "OK"
-                }
-
-
-def test_get_place(monkeypatch):
-    # Any arguments may be passed: mock_get() will always return a
-    # mocked object, which only has the .json() method.
-    def mock_get(*args, **kwargs):
-        return MockGmapResponse()
-    # apply the monkeypatch for requests.get to mock_get
-    monkeypatch.setattr(requests, "get", mock_get)
-
-    # app.get_json, which contains requests.get, uses the monkeypatch
-    place = api_call.API_Answer("fakeplace")
-    result = place.find_place()
-    assert result["candidates"][0]["formatted_address"] == "Place d'Armes, 78000 Versailles, France"
+            "accurate":true,
+            "formatted_address":"Montmartre, 75018 Paris, France",
+            "stories":[
+                "Jusqu'en 1860, Montmartre \u00e9tait une commune du d\u00e9partement de la Seine",
+                "Le territoire restant de l'ancien Montmartre, aujourd'hui un lieu-dit sans r\u00e9alit\u00e9 officielle ni d\u00e9limitation g\u00e9ographique particuli\u00e8re, est alors int\u00e9gr\u00e9 dans ce qui devient le 18e arrondissement de Paris, baptis\u00e9 \u00ab des Buttes-Montmartre \u00bb et constitu\u00e9 des quartiers administratifs des Grandes-Carri\u00e8res, de Clignancourt, de la Goutte-d'Or et de la Chapelle",
+                " Connu pour ses rues \u00e9troites et escarp\u00e9es flanqu\u00e9es d'escaliers interminables et pour son ambiance de village, ce secteur tr\u00e8s touristique du nord de Paris abrite le point culminant de la capitale sur la butte Montmartre, une des buttes-t\u00e9moins gypseuses form\u00e9es de part et d'autre de la Seine et d\u00e9nomm\u00e9es les \u00ab collines de Paris \u00bb."
+            ],
+            "title":"Montmartre"
+            }
 
 
 class MockWikiResponse:
+    def __init__(self, api):
+        self.api = api
+
     @staticmethod
     def json():
-        with open("tests/Versailles.json", "r") as json_file:
-            res = json.dumps(json_file)
-        res.replace('"', '\\"')
-        res.replace("'", '"')
-        return res
+        if self.api
+        return {"ns": 0,
+            "title": "Montmartre",
+            "pageid": 24951,
+            "size": 37462,
+            "wordcount": 3566,
+            "snippet": "(autrefois Montmartrobus), la seule à circuler sur la butte <span class='searchmatch'>Montmartre</span>. Enfin, le Petit train de <span class='searchmatch'>Montmartre</span> propose également une visite guidée de cette dernière",
+            "timestamp": "2020-01-24T09:45:54Z"}
 
 
-def test_get_clean_stories(monkeypatch):
+
+def test__get_wikipage(monkeypatch):
     # Any arguments may be passed: mock_get() will always return a
     # mocked object, which only has the .json() method.
-    def mock_get(*args, **kwargs):
-        return MockWikiResponse()
+    def mock_get(api, **kwargs):
+        return MockWikiResponse(api)
     # apply the monkeypatch for requests.get to mock_get
-    monkeypatch.setattr(requests, "get", mock_get)
+    monkeypatch.setattr(requests, "get", mock_get(api))
 
     # app.get_json, which contains requests.get, uses the monkeypatch
-    result = api_call.get_clean_stories("Versailles")
-    assert result == ['Située dans la banlieue ouest de la capitale française, à 17,1 km du centre de Paris, Versailles est au XXIe siècle une ville résidentielle aisée avec une économie principalement tertiaire et constitue une destination touristique internationale de premier plan']
+    place = models.API_Answer("fakeplace")
+    result = place._get_wikipage()
+    assert result["title"] == "Montmartre" and result["pageid"] == 24951
 
-# def test_gmap_return_none():
-#     return {"candidates" : [],
-#             "status" : "ZERO_RESULTS"}
 
-# def test_gmap_return_multiple():
-#     results = {
-#             "candidates" : [
-#                 {
-#                     "formatted_address" : "22940 Saint-Julien, France",
-#                     "name" : "Saint-Julien"
-#                 },
-#                 {
-#                     "formatted_address" : "69640 Saint-Julien, France",
-#                     "name" : "Saint-Julien"
-#                 },
-#                 {
-#                     "formatted_address" : "74160 Saint-Julien-en-Genevois, France",
-#                     "name" : "Saint-Julien-en-Genevois"
-#                 }
-#             ],
-#             "status" : "OK"
-#             }
-#     return results
+# class MockWikiResponse:
+#     @staticmethod
+#     def json():
+#         with open("tests/Versailles.json", "r") as json_file:
+#             res = json.dumps(json_file)
+#         res.replace('"', '\\"')
+#         res.replace("'", '"')
+#         return res
+
+
+# def test_get_clean_stories(monkeypatch):
+#     # Any arguments may be passed: mock_get() will always return a
+#     # mocked object, which only has the .json() method.
+#     def mock_get(*args, **kwargs):
+#         return MockWikiResponse()
+#     # apply the monkeypatch for requests.get to mock_get
+#     monkeypatch.setattr(requests, "get", mock_get)
+
+#     # app.get_json, which contains requests.get, uses the monkeypatch
+#     result = models.get_clean_stories("Versailles")
+#     assert result == ['Située dans la banlieue ouest de la capitale française, à 17,1 km du centre de Paris, Versailles est au XXIe siècle une ville résidentielle aisée avec une économie principalement tertiaire et constitue une destination touristique internationale de premier plan']
+

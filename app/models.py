@@ -36,8 +36,8 @@ class API_Answer():
             lon (float)'''
 
         # Get wikipage attributes
-        wikiPageJson = self._get_wikipage(place)
         self.place = place
+        wikiPageJson = self._get_wikipage()
         self.pageid = wikiPageJson.get("pageid", None)
         self.url = "https://fr.wikipedia.org/w/index.php?curid=" \
             + str(self.pageid)
@@ -49,11 +49,11 @@ class API_Answer():
         self.get_wikicoord()
 
         # Get address on Google MAP and if necessary get coord
-        self.formatted_address = ""
+        # define self.formatted_address :
         self.get_gmapaddress()
 
         # Get stories to tell
-        self.stories = []
+        # define self.stories :
         self.stories = self.get_wikistories()
 
         self.json = {
@@ -70,19 +70,17 @@ class API_Answer():
     #     WIKIPEDIA         #
     #########################
 
-    def _get_wikipage(self, place_searched):
+    def _get_wikipage(self):
         '''
         Search a place on Wikipedia return the json page
         with most authority and fitting best the request.
-        ARGS:
-            place_searched (str): place to find on Wikipedia
         return:
-            (dic): first result of wikipedia if pagetitle = place_searched
+            (dic): first result of wikipedia if pagetitle = place
                     {"pageid": None,"title": None} otherwise'''
 
         search_param = {
             "action": "query",
-            "srsearch": place_searched,
+            "srsearch": self.place,
             "list": "search",
             "format": "json"
         }
@@ -98,7 +96,7 @@ class API_Answer():
         # If no index error and unicode title is equal to research
         try:
             normalize("NFC", candidates['query']['search'][0]['title']) \
-                == normalize('NFC', place_searched)
+                == normalize('NFC', self.place)
             return candidates['query']['search'][0]
         except:
             return {

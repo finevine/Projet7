@@ -9,7 +9,7 @@ function get_answer(question) {
         if(xhr.readyState === 4 && xhr.status === 200) {
             console.log(xhr.responseText);
             answer = JSON.parse(xhr.responseText);
-            bot_answers(answer);
+            bot_says(answer);
         }
     };
     xhr.send();
@@ -22,14 +22,15 @@ var clear_messageToSend = function() {
   document.getElementById("messageToSend").value = "";
 }
 
-function bot_answers(answer) {
+function bot_says(api_answer) {
   // Bot speaks here (address, map, stories...)
-  append_message(answer.formatted_address, 'bot')
+  append_message(api_answer.formatted_address, 'bot')
 }
 
 function append_message(message, from) {
   switch (from) {
     case "bot":
+      // create element div pour éviter mélange html js
       var htmlcode = `<div class="d-flex justify-content-start mb-4">
           <div class="img_cont_msg">
               <img src="/static/img/grandpy.jpg" class="img_cont_msg rounded-circle user_img_msg">
