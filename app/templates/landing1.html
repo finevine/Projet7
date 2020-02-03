@@ -1,19 +1,20 @@
 
+<!------ Include the above in your HEAD tag ---------->
+<!-- theme from https://bootsnipp.com/snippets/nNg98 -->
 <!DOCTYPE html>
 <html>
 <head>
-    <!-- theme from https://bootsnipp.com/snippets/nNg98 -->
-	<title>Chat avec GrandPy Bot</title>
+	<title>Bienvenue au chat !</title>
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-	<link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" type="text/css" />
+	<LINK href="../static/css/style.css" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 	<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.css">
-	<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
 </head>
+
 
 <body>
 	<div class="container-fluid h-100">
@@ -21,7 +22,7 @@
 			<div class="col col-md-11 col-xl-8 chat">
 				<div class="container col-md-5">
 					<input id="name-input" type="text" id="name" name="name" required minlength="4" maxlength="25" size="10" placeholder="Quel est votre nom ?">
-					<a href="/chat?user=Inconnu" id="chat-link" class="input-group-text send_btn col-md-7">Parler à Grandpy&nbsp;<i class="fas fa-paper-plane"></i></a>
+					<a href="rotot.fr" id="chat-link" class="input-group-text send_btn col-md-7">Parler à Grandpy&nbsp;<i class="fas fa-paper-plane"></i></a>
 				</div>
 			</div>
 		</div>
@@ -36,5 +37,6 @@
 	return false;
 	}
 </script>
+
 </body>
 </html>

@@ -11,7 +11,11 @@
 	<script type="text/javascript" src="{{ url_for('static', filename='js/main.js') }}"></script>
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/malihu-custom-scrollbar-plugin/3.1.5/jquery.mCustomScrollbar.min.js"></script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<<<<<<< HEAD
 
+=======
+	<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
+>>>>>>> API_Answer-test
 </head>
 
 
@@ -54,21 +58,11 @@
 							</div>
 						</div>
 
-						<div class="d-flex justify-content-end mb-4">
-							<div class="msg_cotainer_send">
-								Salut Grandpy je vais te poser plein de questions !
-								<span class="msg_time_send">{{ time }}</span>
-							</div>
-							<div class="img_cont_msg">
-								<img src="{{ url_for('static', filename='img/avatar_generic.jpg') }}" class="rounded-circle user_img_msg">
-							</div>
-						</div>
-
 					</div>
 
 					<div class="card-footer">
 						<div class="input-group">
-							<input type="textarea" id="messageToSend" name="" class="form-control type_msg" placeholder="Type your message..."></input>
+							<input type="textarea" id="messageToSend" name="" class="form-control type_msg" placeholder="Tapez ici votre question..."></input>
 							<div class="input-group-append"> 
 								<span class="input-group-text send_btn" id="buttonToSend" onclick="get_answer(
 									document.getElementById('messageToSend').value);">

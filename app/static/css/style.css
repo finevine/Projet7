@@ -6,6 +6,15 @@ body,html{
     background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
 }
 
+#name-input{
+    padding:8px;
+    display:block;
+    border:none;
+    border-bottom:1px solid #ccc;
+    width:100%;
+    margin: 10px 0;
+}
+
 .chat{
     margin-top: auto;
     margin-bottom: auto;

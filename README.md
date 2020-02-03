@@ -15,6 +15,11 @@ This project is codded using Test Driven Development. Here are 2 videos about te
 - [Advanced Test Driven Development](https://vimeo.com/97516288)
 
 ## Flask
+To test the app in the Project folder:
+```
+export FLASK_APP=app/views.py
+python -m flask run
+```
 Useful ressources about Flask :
 - [quick Start](http://flask.palletsprojects.com/en/1.1.x/quickstart/#url-building)
 - [flask_sqlalchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) but no DB is required for this project

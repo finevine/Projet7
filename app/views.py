@@ -1,26 +1,27 @@
-from flask import Flask, escape, render_template
+from flask import Flask, escape, render_template, request
 from datetime import datetime, date
 from app import models
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Index Page'
+    return render_template('landing.html')
 
 @app.route('/chat')
-@app.route('/chat/<username>')
 def chat(username=None):
     '''
     path to chat'''
+    username = request.args.get('user')
     today = date.today().strftime("%d/%m/%Y")
     now = datetime.now().strftime("%H:%M")
     return render_template('chat.html', name=username, time=now, date=today)
 
-@app.route('/answer/<string:question>')
-def requete_AJAX(question):
+@app.route('/answer')
+def requete_AJAX():
     '''
     AJAX request calls this function.'''
-    return models.AJAX_answer(question).formatted_address
+    question = request.args.get('question')
+    return models.AJAX_answer(question)
 
 @app.route('/post/<int:post_id>')
 def show_post(post_id):
