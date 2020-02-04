@@ -27,35 +27,37 @@ function bot_says(api_answer) {
   append_message(api_answer.formatted_address, 'bot')
 }
 
-function append_message(message, from) {
+function append_message(text, from) {
+  var message = document.createElement("div");
+  var img_cont = document.createElement("div");
+  img_cont.className = 'img_cont_msg';
+  var img = document.createElement("img");
+  img.className = 'img_cont_msg rounded-circle user_img_msg';
+  img_cont.appendChild(img);
+  var message_text = document.createElement('div');
+
   switch (from) {
     case "bot":
-      // create element div pour éviter mélange html js
-      var htmlcode = `<div class="d-flex justify-content-start mb-4">
-          <div class="img_cont_msg">
-              <img src="/static/img/grandpy.jpg" class="img_cont_msg rounded-circle user_img_msg">
-          </div>
-          <div class="msg_cotainer">`
-              + message + 
-              `<span class="msg_time">{{ time }}</span>
-          </div>
-      </div>`;
+      message.className = 'd-flex justify-content-start mb-4';
+      img.setAttribute("src", "/static/img/grandpy.jpg");
+      img.setAttribute("alt", "Bot");
+      message_text.className = 'msg_cotainer';
+      message.appendChild(img_cont);
+      message.appendChild(message_text);
       break;
     case "user":
-      var htmlcode = `<div class="d-flex justify-content-end mb-4">
-      <div class="msg_cotainer_send">`
-          + message + 
-          `<span class="msg_time_send">{{ time }}</span>
-      </div>
-      <div class="img_cont_msg">
-          <img src="/static/img/avatar_generic.jpg" class="rounded-circle user_img_msg">
-      </div>
-      </div>`;
+      message.className = 'd-flex justify-content-end mb-4';
+      img.setAttribute("src", "/static/img/avatar_generic.jpg");
+      img.setAttribute("alt", "User");
+      message_text.className = 'msg_cotainer_send';
+      message.appendChild(message_text);
+      message.appendChild(img_cont);
         break;
     default:
-      var htmlcode = '';
+      var message = '';
   }
+  message_text.innerHTML = text;
   var chat = document.getElementById('chat_body');
-  chat.insertAdjacentHTML('beforeend', htmlcode); 
+  chat.appendChild(message); 
   chat.scrollTop = chat.scrollHeight;
 }
