@@ -5,7 +5,7 @@ import app
 # from app import app
 # from app.models import API_Answer
 
-def test_get_wikipage(monkeypatch):
+def test_get_wikipage_uses_API_OK(monkeypatch):
     class mock_API_Answer():
         def __init__(self, *args, **kwargs):
             self.place = "Versailles"
