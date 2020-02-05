@@ -4,7 +4,6 @@ import os
 import pdb
 from unicodedata import normalize
 from dotenv import load_dotenv
-# from bs4 import BeautifulSoup
 load_dotenv()
 
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
@@ -33,11 +32,12 @@ class API_Answer():
             stories (list) : stories parsed from wikipedia
             accurate (bool) : if stories match to coordinates
             lat (float)
-            lon (float)'''
+            lon (float)
+            json (json) : formatted_address, accurate, title, stories'''
 
         # Get wikipage attributes
         self.place = place
-        wikiPageJson = self._get_wikipage()
+        wikiPageJson = self.get_wikipage()
         self.pageid = wikiPageJson.get("pageid", None)
         self.url = "https://fr.wikipedia.org/w/index.php?curid=" \
             + str(self.pageid)
@@ -70,7 +70,7 @@ class API_Answer():
     #     WIKIPEDIA         #
     #########################
 
-    def _get_wikipage(self):
+    def get_wikipage(self):
         '''
         Search a place on Wikipedia return the json page
         with most authority and fitting best the request.
@@ -84,6 +84,7 @@ class API_Answer():
             "list": "search",
             "format": "json"
         }
+        # import pdb
         # pdb.set_trace()
         # Request :
         req = requests.get(
@@ -255,3 +256,6 @@ def AJAX_answer(question):
     This function returns the json of the instance'''
     answer = API_Answer(question)
     return answer.json
+
+if __name__ == '__main__':
+    app.run(debug=True)
