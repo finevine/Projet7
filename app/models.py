@@ -23,7 +23,7 @@ class API_Answer():
         Instance of WikiPage
         ARGS :
             place (str): place to find in Wikipedia
-        return:
+        Attributes:
             place (str)
             pageid (str) : wikipedia page ID
             url (str) : URL of wikipedia
@@ -35,36 +35,30 @@ class API_Answer():
             lon (float)
             json (json) : formatted_address, accurate, title, stories'''
 
-        # Get wikipage attributes
+        # initialize wikipage attributes
         self.place = place
-        wikiPageJson = self.get_wikipage()
-        self.pageid = wikiPageJson.get("pageid", None)
-        self.url = "https://fr.wikipedia.org/w/index.php?curid=" \
-            + str(self.pageid)
-        self.title = wikiPageJson['title']
+        self.pageid = 0
+        self.url = ""
+        self.title = ""
 
-        # Get wiki coordinates
+        # initialize wiki coordinates
         self.lat, self.lon = None, None
         self.accurate = False
-        self.get_wikicoord()
 
-        # Get address on Google MAP and if necessary get coord
         # define self.formatted_address :
-        self.get_gmapaddress()
+        self.formatted_address = ""
 
-        # Get stories to tell
         # define self.stories :
-        self.stories = self.get_wikistories()
+        self.stories = []
 
-        self.json = {
+    @property
+    def json(self):
+        return {
             "formatted_address": self.formatted_address,
             "accurate": self.accurate,
             "title": self.title,
             "stories": self.stories
         }
-
-        # print(wikiurl)
-        # print(self.url, self.title, sep="\n")
 
     #########################
     #     WIKIPEDIA         #
@@ -84,8 +78,6 @@ class API_Answer():
             "list": "search",
             "format": "json"
         }
-        # import pdb
-        # pdb.set_trace()
         # Request :
         req = requests.get(
             WIKI_API_URL,
@@ -94,16 +86,12 @@ class API_Answer():
         )
         candidates = req.json()
 
-        # If no index error and unicode title is equal to research
-        try:
-            normalize("NFC", candidates['query']['search'][0]['title']) \
-                == normalize('NFC', self.place)
-            return candidates['query']['search'][0]
-        except:
-            return {
-                "pageid": None,
-                "title": None
-            }
+        wikiPageJson = candidates['query']['search'][0]
+        self.pageid = wikiPageJson.get("pageid", None)
+        self.url = "https://fr.wikipedia.org/w/index.php?curid=" \
+            + str(self.pageid)
+        self.title = wikiPageJson['title']
+
 
     def get_wikicoord(self):
         '''
@@ -185,9 +173,9 @@ class API_Answer():
             if len(sentence) >= 60 and self.place.lower() in sentence.lower():
                 res.append(sentence)
         if not res:
-            return sentences
+            self.stories = sentences
         else:
-            return res
+            self.stories = res
 
     #########################
     #     GMAP              #
@@ -255,6 +243,10 @@ def AJAX_answer(question):
     '''
     This function returns the json of the instance'''
     answer = API_Answer(question)
+    answer.get_wikipage()
+    answer.get_wikicoord()
+    answer.get_gmapaddress()
+    answer.get_wikistories()
     return answer.json
 
 if __name__ == '__main__':
