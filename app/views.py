@@ -1,11 +1,13 @@
-from flask import Flask, escape, render_template, request
+from flask import render_template, request
 from datetime import datetime, date
 from app import models
 from . import app
 
+
 @app.route('/')
 def index():
     return render_template('landing.html')
+
 
 @app.route('/chat')
 def chat(username=None):
@@ -16,6 +18,7 @@ def chat(username=None):
     now = datetime.now().strftime("%H:%M")
     return render_template('chat.html', name=username, time=now, date=today)
 
+
 @app.route('/answer')
 def requete_AJAX():
     '''
@@ -23,9 +26,12 @@ def requete_AJAX():
     question = request.args.get('question')
     return models.AJAX_answer(question)
 
+
 @app.route('/about')
 def about():
     '''
-    The canonical URL for the about endpoint does not have a trailing slash. It’s similar to the pathname of a file. Accessing the URL with a trailing slash produces a 404 “Not Found” error.
+    The canonical URL for the about endpoint does not have a trailing slash.
+    It’s similar to the pathname of a file. Accessing the URL
+    with a trailing slash produces a 404 “Not Found” error.
     '''
     return 'The about page'

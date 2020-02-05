@@ -1,9 +1,8 @@
 import requests
 import re
 import os
-import pdb
-from unicodedata import normalize
 from dotenv import load_dotenv
+from app import app
 load_dotenv()
 
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
@@ -16,7 +15,7 @@ SEARCH_HEADER = {
     }
 
 
-class API_Answer():
+class ApiAnswer():
     ''' represent the page found or not found '''
     def __init__(self, place):
         '''
@@ -91,7 +90,6 @@ class API_Answer():
         self.url = "https://fr.wikipedia.org/w/index.php?curid=" \
             + str(self.pageid)
         self.title = wikiPageJson['title']
-
 
     def get_wikicoord(self):
         '''
@@ -239,15 +237,17 @@ class API_Answer():
         else:
             return 'Not found'
 
+
 def AJAX_answer(question):
     '''
     This function returns the json of the instance'''
-    answer = API_Answer(question)
+    answer = ApiAnswer(question)
     answer.get_wikipage()
     answer.get_wikicoord()
     answer.get_gmapaddress()
     answer.get_wikistories()
     return answer.json
+
 
 if __name__ == '__main__':
     app.run(debug=True)
