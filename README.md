@@ -1,3 +1,35 @@
+# NOTA :
+Le mock de classe est intéressant :
+
+```python
+def test_get_wikipage(monkeypatch):
+    class mock_API_Answer():
+        def __init__(self, *args, **kwargs):
+            self.place = "Versailles"
+            self.pageid = 12345
+            self.url = 'https://fr.wikipedia.org/w/index.php?curid='+str(self.pageid)
+            self.title = "Versailles"
+            self.lat, self.lon = 0, 0
+            self.accurate = False
+            self.formatted_address = "addresse de Versailles"
+            self.stories = ["il était une fois à Versailles", "dans les rues de Versailles, un jour..."]
+            self.json = {
+                "formatted_address": self.formatted_address,
+                "accurate": self.accurate,
+                "title": self.title,
+                "stories": self.stories
+            }
+
+        def get_wikipage(self):
+            self.place = "toto"
+
+    monkeypatch.setattr('app.models.API_Answer', mock_API_Answer)
+
+    fakeplace = app.models.API_Answer("fake")
+
+    assert fakeplace.place == "toto"
+```
+
 # Projet7 : Grandpy bot a bot for OpenClassrooms
 [Assignement](https://openclassrooms.com/fr/projects/158/assignment) is online.
 
