@@ -1,7 +1,7 @@
 from flask import Flask, escape, render_template, request
 from datetime import datetime, date
-from . import app
 from app import models
+from . import app
 
 @app.route('/')
 def index():
