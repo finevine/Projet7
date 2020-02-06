@@ -8,6 +8,8 @@ load_dotenv()
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
 GMAP_API_URL = \
     'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?'
+GMAP_STATIC_URL = \
+    'http://maps.googleapis.com/maps/api/staticmap?'
 WIKI_API_URL = 'https://fr.wikipedia.org/w/api.php'
 SEARCH_HEADER = {
     "user-agent": "GrandPy - https://github.com/finevine/Projet7",
@@ -41,7 +43,7 @@ class ApiAnswer():
         self.title = ""
 
         # initialize wiki coordinates
-        self.lat, self.lon = None, None
+        self.lat, self.lon = 0, 0
         self.accurate = False
 
         # define self.formatted_address :
@@ -179,6 +181,30 @@ class ApiAnswer():
     #     GMAP              #
     #########################
 
+    def get_gmapMap(self):
+
+        search_param = {
+            "center": str(self.lat) + "," + str(self.lon),
+            "zoom": 13,
+            "size": "300x200",
+            "maptype": "roadmap",
+            "markers": "size:mid|color:red|" + str(self.lat) + "," + str(self.lon),
+            "key": GMAP_API_KEY
+        }
+        req = requests.get(
+            GMAP_STATIC_URL,
+            params=search_param,
+            headers=SEARCH_HEADER
+        )
+
+        Photo_URL = req.url
+        import pdb; pdb.set_trace()
+
+        Picture_request = requests.get(Photo_URL)
+        if Picture_request.status_code == 200:
+            with open("/path/to/image.jpg", 'wb') as f:
+                f.write(Picture_request.content)
+
     def get_gmapaddress(self):
         '''
         find a place on Google Map
@@ -208,9 +234,9 @@ class ApiAnswer():
             self.formatted_address = Best_res["formatted_address"]
             location = Best_res["geometry"]["location"]
             # accurate = "wikicoord == gmapcoord"
+            self.lat, self.lon = location["lat"], location["lng"]
             self.accurate = round(self.lat, 3) == round(location["lat"], 3) \
                 and round(self.lon, 3) == round(location["lng"], 3)
-            self.lat, self.lon = location["lat"], location["lng"]
             # print("googlelat = " + str(self.lat))
 
     #########################
@@ -236,6 +262,14 @@ class ApiAnswer():
 
         else:
             return 'Not found'
+
+
+# class UserQuestion():
+
+
+# class GAnswer():
+# class WikiAnswer():
+
 
 
 def AJAX_answer(question):

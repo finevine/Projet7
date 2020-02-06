@@ -1,3 +1,5 @@
+const IMG_PATH= "/static/img"
+
 function get_answer(question) {
     var xhr = new XMLHttpRequest(),
         method = "GET",
@@ -39,7 +41,7 @@ function append_message(text, from) {
   switch (from) {
     case "bot":
       message.className = 'd-flex justify-content-start mb-4';
-      img.setAttribute("src", "/static/img/grandpy.jpg");
+      img.setAttribute("src", IMG_PATH + "/grandpy.jpg");
       img.setAttribute("alt", "Bot");
       message_text.className = 'msg_cotainer';
       message.appendChild(img_cont);
@@ -47,7 +49,7 @@ function append_message(text, from) {
       break;
     case "user":
       message.className = 'd-flex justify-content-end mb-4';
-      img.setAttribute("src", "/static/img/avatar_generic.jpg");
+      img.setAttribute("src",  IMG_PATH + "/avatar_generic.jpg");
       img.setAttribute("alt", "User");
       message_text.className = 'msg_cotainer_send';
       message.appendChild(message_text);
