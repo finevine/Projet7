@@ -17,6 +17,119 @@ SEARCH_HEADER = {
     }
 
 
+class WikiSearch():
+    '''class to find nearby pages in wikipedia'''
+    def __init__(self, lat, lon):
+        '''Instance of page found
+        ARGS:
+            lat (float): latitude
+            lon (float): longitude
+        Attributes:
+            pageid (int): wikipedia pageid
+            title (str): title of wikipedia page
+        '''
+        self.lat = lat
+        self.lon = lon
+        self.pageid = None
+        self.title = None
+        PARAMS = {
+            "format": "json",
+            "list": "geosearch",
+            "gscoord": str(lat)+"|"+str(lon),
+            "gslimit": "10",
+            "gsradius": "10000",
+            "action": "query"
+        }
+        req = requests.get(
+            url=WIKI_API_URL,
+            params=PARAMS,
+            headers=SEARCH_HEADER
+        )
+        data = req.json()
+
+        places = data["query"]["geosearch"]
+        try:
+            Best_res = places[0]
+            self.pageid = Best_res["pageid"]
+            self.title = Best_res["title"]
+        except KeyError as error:
+            # Output expected IndexErrors.
+            pass
+        except Exception as error:
+            # Output unexpected Exceptions.
+            print(error)
+            print("il y a eu une erreur !")
+
+
+class GmapAnswer():
+    '''find place in google map'''
+    def __init__(self, place):
+        '''Instance of place to find
+        ARGS:
+            place (str): place to find 
+        Attributes:
+            formatted_address (str): Google Map address
+            lat (float): latitude
+            lon (float): longitude
+        '''
+        self.lat = None
+        self.lon = None
+        self.formatted_address = None
+        PARAMS = {
+            "input": place,
+            "inputtype": "textquery",
+            "fields": "formatted_address,name,geometry",
+            "locationbias": "circle:2000000@47.0359,2.7868",
+            "key": GMAP_API_KEY
+        }
+        req = requests.get(
+            GMAP_API_URL,
+            params=PARAMS,
+            headers=SEARCH_HEADER
+        )
+
+        data = req.json()
+        if data["status"] != "OK":
+            pass
+        else:
+            try:
+                best_res = data["candidates"][0]
+                self.formatted_address = best_res["formatted_address"]
+                location = best_res["geometry"]["location"]
+                # accurate = "wikicoord == gmapcoord"
+                self.lat, self.lon = location["lat"], location["lng"]
+            except KeyError as error:
+                # Output expected IndexErrors.
+                pass
+            except Exception as error:
+                # Output unexpected Exceptions.
+                print(error)
+                print("il y a eu une erreur !")
+
+
+class WikiSnippet():
+    '''class that get snippet from wikipedia'''
+    def __init__(self, title, pageid):
+        self.story = None
+        self.accurate = False
+        PARAMS = {
+            "action": "query",
+            "srsearch": title,
+            "list": "search",
+            "format": "json"
+        }
+        # Request :
+        req = requests.get(
+            url=WIKI_API_URL,
+            params=PARAMS,
+            headers=SEARCH_HEADER
+        )
+        candidates = req.json()
+        wikiPage = candidates["query"]["search"][0]
+        self.story = wikiPage["snippet"]
+        self.accurate = wikiPage["pageid"] == pageid
+
+# TO DELETE
 class ApiAnswer():
     ''' represent the page found or not found '''
     def __init__(self, place):
@@ -121,8 +234,8 @@ class ApiAnswer():
                 params=search_param,
                 headers=SEARCH_HEADER
             )
-            Data = req.json()
-            coordinates = Data["query"]["pages"].get(
+            data = req.json()
+            coordinates = data["query"]["pages"].get(
                 str(self.pageid), default_dic)\
                 .get(
                     "coordinates", default_list
@@ -154,11 +267,11 @@ class ApiAnswer():
             params=search_param,
             headers=SEARCH_HEADER
         )
-        Data = req.json()
+        data = req.json()
 
         # replace end line by space and make unicode readable
         if self.pageid:
-            sentences = Data["query"]["pages"][str(self.pageid)]["extract"]\
+            sentences = data["query"]["pages"][str(self.pageid)]["extract"]\
                 .replace('\n', ' ')
             sentences.encode('utf-8').decode('utf-8')
         else:
@@ -226,11 +339,11 @@ class ApiAnswer():
             headers=SEARCH_HEADER
         )
 
-        Data = req.json()
-        if Data["status"] != "OK":
+        data = req.json()
+        if data["status"] != "OK":
             pass
         else:
-            Best_res = Data["candidates"][0]
+            Best_res = data["candidates"][0]
             self.formatted_address = Best_res["formatted_address"]
             location = Best_res["geometry"]["location"]
             # accurate = "wikicoord == gmapcoord"
@@ -263,24 +376,32 @@ class ApiAnswer():
         else:
             return 'Not found'
 
-
 # class UserQuestion():
 
 
-# class GAnswer():
-# class WikiAnswer():
 
 
-
-def AJAX_answer(question):
+def AJAX_answer(place):
     '''
     This function returns the json of the instance'''
-    answer = ApiAnswer(question)
-    answer.get_wikipage()
-    answer.get_wikicoord()
-    answer.get_gmapaddress()
-    answer.get_wikistories()
-    return answer.json
+    gmap = GmapAnswer(place)
+    address = gmap.formatted_address
+    lat, lon = gmap.lat, gmap.lon
+
+    wikiPage = WikiSearch(lat, lon)
+    title = wikiPage.title
+
+    wikiStory = WikiSnippet(wikiPage)
+    accurate = wikiStory.accurate
+    story = wikiStory.story
+
+    res = {
+        "formatted_address": address,
+        "accurate": accurate,
+        "title": title,
+        "stories": story
+    }
+    return res
 
 
 if __name__ == '__main__':
