@@ -112,3 +112,37 @@ def test_WikiSnippet_attr_OK(monkeypatch):
     assert fakePage.story == "histoire" and fakePage.accurate == False
 
 
+def test_AJAX_answer_OK(monkeypatch):
+    class mock_GmapResponse():
+        def __init__(self, *args, **kwargs):
+            self.formatted_address = "address"
+            self.lat = 1234.5
+            self.lon = 5432.1
+
+    monkeypatch.setattr('app.models.GmapAnswer', mock_GmapResponse)
+
+    class mock_WikiSearch():
+        def __init__(self, *args, **kwargs):
+            self.title = "titre"
+            self.pageid = 2
+            self.lat = 1234.5
+            self.lon = 5432.1
+
+    monkeypatch.setattr('app.models.WikiSearch', mock_WikiSearch)
+
+    class mock_WikiSnippet():
+        def __init__(self, *args, **kwargs):
+            self.story = "Once upon"
+            self.accurate = True
+
+    monkeypatch.setattr('app.models.WikiSnippet', mock_WikiSnippet)
+
+    fakeplace = models.AJAX_answer("fake")
+    expected = {
+        "formatted_address": "address",
+        "accurate": True,
+        "title": "titre",
+        "story": "Once upon"
+    }
+
+    assert fakeplace == expected

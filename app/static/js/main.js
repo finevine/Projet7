@@ -26,7 +26,13 @@ var clear_messageToSend = function() {
 
 function bot_says(api_answer) {
   // Bot speaks here (address, map, stories...)
-  append_message(api_answer.formatted_address, 'bot')
+  append_message('Oui ! '.concat(api_answer.title),'bot')
+  setTimeout(function(){
+    append_message("C'est au ".concat(api_answer.formatted_address),'bot')
+  }, 500);
+  setTimeout(function(){
+    append_message("Et d'ailleurs sais tu que : ".concat(api_answer.story),'bot')
+  }, 1000);
 }
 
 function append_message(text, from) {
