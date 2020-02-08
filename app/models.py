@@ -4,7 +4,7 @@ import os
 import string
 from dotenv import load_dotenv
 from app import app
-from .config import INTENT, STOPWORDS, GMAP_API_URL, GMAP_STATIC_URL, WIKI_API_URL, SEARCH_HEADER
+from .config import INTENT, STOPWORDS, GMAP_API_URL, GMAP_STATIC_URL, WIKI_API_URL, SEARCH_HEADER, NOT_KNOW
 load_dotenv()
 
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
@@ -39,7 +39,7 @@ class GmapAnswer():
 
         data = req.json()
         if data["status"] != "OK":
-            pass
+            self.formatted_address = "Pétaouchnok"
         else:
             try:
                 best_res = data["candidates"][0]
@@ -47,13 +47,10 @@ class GmapAnswer():
                 location = best_res["geometry"]["location"]
                 # accurate = "wikicoord == gmapcoord"
                 self.lat, self.lon = location["lat"], location["lng"]
-            except KeyError as error:
-                # Output expected IndexErrors.
-                pass
             except Exception as error:
                 # Output unexpected Exceptions.
-                print(error)
-                print("il y a eu une erreur !")
+                self.formatted_address = "Pétaouchnok"
+                self.lat, self.lon = None, None
 
 
 class WikiSearch():
@@ -88,8 +85,8 @@ class WikiSearch():
         )
         data = req.json()
 
-        places = data["query"]["geosearch"]
         try:
+            places = data["query"]["geosearch"]
             Best_res = places[0]
             self.pageid = Best_res["pageid"]
             self.title = Best_res["title"]
@@ -137,18 +134,21 @@ class WikiExtract():
             sentences.encode('utf-8').decode('utf-8')
             self.accurate = True
         except KeyError:
-            page = data["query"]["pages"].popitem()
-            sentences = page[0]
-            sentences.encode('utf-8').decode('utf-8')
+            try:
+                page = data["query"]["pages"].popitem()
+                sentences = page[0]
+                sentences.encode('utf-8').decode('utf-8')
+            except KeyError:
+                sentences = NOT_KNOW
             self.accurate = False
         except IndexError:
-            sentences = 'RAS sur le sujet'
+            sentences = NOT_KNOW
             self.accurate = False
         
         # Delete Title wikitext part such as "== Présentation générale =="
         wikiTitles = re.compile(r"== \b[^==]+==", re.IGNORECASE)
         sentences = wikiTitles.sub('', sentences)
-        
+
         self.stories = sentences
 
 

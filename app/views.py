@@ -24,7 +24,21 @@ def requete_AJAX():
     '''
     AJAX request calls this function.'''
     question = request.args.get('question')
-    return models.AJAX_answer(question)
+    res = models.AJAX_answer(question)
+    if res != "500":
+        return res
+    else:
+        return {
+        "formatted_address": "Pétaouchnok",
+        "accurate": False,
+        "title": "Connais pas",
+        "stories": "Non, en fait, je n'ai jamais entendu parlé de cet endroit ! Ça ne me dit rien..."
+    }
+
+
+@app.errorhandler(500)
+def internal_error(error):
+    return "500"
 
 
 @app.route('/about')
