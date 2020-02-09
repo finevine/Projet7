@@ -1,5 +1,7 @@
-from flask import render_template, request
+from flask import render_template, request, send_file
 from datetime import datetime, date
+from PIL import Image
+from io import BytesIO
 from app import models
 from . import app
 
@@ -32,8 +34,24 @@ def requete_AJAX():
         "formatted_address": "Pétaouchnok",
         "accurate": False,
         "title": "Connais pas",
-        "stories": "Non, en fait, je n'ai jamais entendu parlé de cet endroit ! Ça ne me dit rien..."
+        "stories": "Non, en fait, je n'ai jamais entendu parlé de cet endroit ! Ça ne me dit rien...",
+        "img": {{ url_for('static/img/None-None.png') }}
     }
+
+
+# @app.route('/maps/<path:filename>')
+# def download_file(filename):
+#     return send_from_directory(app.config['UPLOAD_FOLDER'], \
+#         filename, as_attachment=True)
+
+
+@app.route('/static/img/<float:lat>-<float:lon>.png')
+def map(lat, lon):
+    """Serves the map image."""
+    # image = request to GmapStatic.content
+    image = models.GmapStatic(lat, lon).img
+
+    return send_file(BytesIO(image), mimetype="image/png", attachment_filename=str(lat) + "-" + str(lon) + ".png", as_attachment=True)
 
 
 @app.errorhandler(500)

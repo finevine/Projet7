@@ -152,6 +152,37 @@ class WikiExtract():
         self.stories = sentences
 
 
+class GmapStatic():
+    '''This class save image of map to a file'''
+    def __init__(self, lat, lon):
+        '''Instance of a static map
+        ARGS:
+
+        ATTR:
+            img()'''
+
+        coords = str(lat) + "," + str(lon)
+        search_param = {
+            "action": "query",
+            "center": coords,
+            "zoom": "13",
+            "size": "300x200",
+            "maptype": "roadmap",
+            "markers": "mid|color:red|" + coords,
+            "format": "json",
+            "key": GMAP_API_KEY
+        }
+        # Request :
+        req = requests.get(
+            url=GMAP_STATIC_URL,
+            params=search_param,
+            headers=SEARCH_HEADER
+        )
+
+        # self.img = io.BytesIO(req.content)
+        self.img = req.content
+
+
 class UserQuestion():
     '''This class parse the question to get the good question'''
     def __init__(self, text):
@@ -208,7 +239,10 @@ def AJAX_answer(text):
         "formatted_address": address,
         "accurate": accurate,
         "title": title,
-        "stories": stories
+        "stories": stories,
+        "lat": lat,
+        "lon": lon,
+        "img": "/static/img/"+ str(lat) + "-" + str(lon) + ".png"
     }
     return res
 

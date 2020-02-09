@@ -16,7 +16,7 @@ function get_answer(question) {
     };
     xhr.send();
     // append_user_message(question);
-    append_message(question, 'user')
+    append_message(question, 'user', false)
     clear_messageToSend();
   }
 
@@ -26,14 +26,18 @@ var clear_messageToSend = function() {
 
 function bot_says(api_answer) {
   // Bot speaks here (address, map, stories...)
-  append_message("Oui, ça je connais, voilà où ça se trouve : ".concat(api_answer.formatted_address),'bot')
+  append_message("Oui, ça je connais, voilà où ça se trouve : ".concat(api_answer.formatted_address),'bot', false);
 
   setTimeout(function(){
-    append_message("Et d'ailleurs sais tu que : ".concat(api_answer.stories),'bot')
+    append_message("Et d'ailleurs sais tu que : ".concat(api_answer.stories),'bot', false)
+  }, 500);
+
+  setTimeout(function(){
+    append_message(api_answer.img, 'bot', true)
   }, 500);
 }
 
-function append_message(text, from) {
+function append_message(text, from, map) {
   var message = document.createElement("div");
   var img_cont = document.createElement("div");
   img_cont.className = 'img_cont_msg';
@@ -62,7 +66,16 @@ function append_message(text, from) {
     default:
       var message = '';
   }
+  if (map == true) {
+    var image = document.createElement("IMG");
+    image.setAttribute("src", text);
+    image.setAttribute("width", "300");
+    image.setAttribute("height", "200");
+    image.setAttribute("alt", "Map of the place");
+    message_text.appendChild(image)
+  } else {
   message_text.innerHTML = text;
+  }
   var chat = document.getElementById('chat_body');
   chat.appendChild(message); 
   chat.scrollTop = chat.scrollHeight;
