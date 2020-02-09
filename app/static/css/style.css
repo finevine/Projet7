@@ -15,6 +15,10 @@ body,html{
     margin: 10px 0;
 }
 
+#footer {
+    color: gray !important;
+}
+
 .chat{
     margin-top: auto;
     margin-bottom: auto;

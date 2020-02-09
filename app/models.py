@@ -1,10 +1,10 @@
 import requests
 import re
 import os
-import string
 from dotenv import load_dotenv
 from app import app
-from .config import INTENT, STOPWORDS, GMAP_API_URL, GMAP_STATIC_URL, WIKI_API_URL, SEARCH_HEADER, NOT_KNOW
+from .config import INTENT, STOPWORDS, GMAP_API_URL, GMAP_STATIC_URL, \
+    WIKI_API_URL, SEARCH_HEADER, NOT_KNOW
 load_dotenv()
 
 GMAP_API_KEY = os.environ["GMAP_API_KEY"]
@@ -15,7 +15,7 @@ class GmapAnswer():
     def __init__(self, place):
         '''Instance of place to find
         ARGS:
-            place (str): place to find 
+            place (str): place to find
         Attributes:
             formatted_address (str): Google Map address
             lat (float): latitude
@@ -47,7 +47,7 @@ class GmapAnswer():
                 location = best_res["geometry"]["location"]
                 # accurate = "wikicoord == gmapcoord"
                 self.lat, self.lon = location["lat"], location["lng"]
-            except Exception as error:
+            except KeyError:
                 # Output unexpected Exceptions.
                 self.formatted_address = "Pétaouchnok"
                 self.lat, self.lon = None, None
@@ -90,7 +90,7 @@ class WikiSearch():
             Best_res = places[0]
             self.pageid = Best_res["pageid"]
             self.title = Best_res["title"]
-        except KeyError as error:
+        except KeyError:
             # Output expected IndexErrors.
             pass
         except Exception as error:
@@ -110,7 +110,7 @@ class WikiExtract():
         Attributes:
             accurate (bool): if pageid in results
             stories (str): 2 sentences of story
-        '''        
+        '''
 
         search_param = {
             "action": "query",
@@ -130,7 +130,7 @@ class WikiExtract():
 
         # replace end line by space and make unicode readable
         try:
-            sentences = data["query"]["pages"][str(pageid)]["extract"] #.replace('\n', ' ')
+            sentences = data["query"]["pages"][str(pageid)]["extract"]
             sentences.encode('utf-8').decode('utf-8')
             self.accurate = True
         except KeyError:
@@ -144,7 +144,7 @@ class WikiExtract():
         except IndexError:
             sentences = NOT_KNOW
             self.accurate = False
-        
+
         # Delete Title wikitext part such as "== Présentation générale =="
         wikiTitles = re.compile(r"== \b[^==]+==", re.IGNORECASE)
         sentences = wikiTitles.sub('', sentences)
@@ -168,7 +168,7 @@ class GmapStatic():
             "zoom": "13",
             "size": "300x200",
             "maptype": "roadmap",
-            "markers": "mid|color:red|" + coords,
+            "markers": coords,
             "format": "json",
             "key": GMAP_API_KEY
         }
@@ -180,6 +180,7 @@ class GmapStatic():
         )
 
         # self.img = io.BytesIO(req.content)
+        # import pdb; pdb.set_trace()
         self.img = req.content
 
 
@@ -209,7 +210,8 @@ class UserQuestion():
             question = words
 
         # remove punctuation from each word
-        table = str.maketrans(string.punctuation, " " * len(string.punctuation))
+        punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
+        table = str.maketrans(punctuation, " " * len(punctuation))
         stripped = [w.translate(table).lower() for w in question]
         # import pdb; pdb.set_trace()
         if stripped:
@@ -242,7 +244,7 @@ def AJAX_answer(text):
         "stories": stories,
         "lat": lat,
         "lon": lon,
-        "img": "/static/img/"+ str(lat) + "-" + str(lon) + ".png"
+        "img": "/static/img/" + str(lat) + "," + str(lon) + ".png"
     }
     return res
 

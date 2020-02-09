@@ -12,15 +12,15 @@ class MockGmapResponse():
             "status": "OK",
             "candidates": [
                 {
-                "geometry": {
-                    "location":{
-                        "lng": 5,
-                        "lat": 5
-                        }
-                },
-                "formatted_address": "leboncoin"
+                    "geometry": {
+                        "location": {
+                            "lng": 5,
+                            "lat": 5
+                            }
+                    },
+                    "formatted_address": "leboncoin"
                 }
-                ]
+            ]
         }
 
 def test_GmapAnswer_attr_OK(monkeypatch):
@@ -32,8 +32,7 @@ def test_GmapAnswer_attr_OK(monkeypatch):
 
     # app.get_json, which contains requests.get, uses the monkeypatch
     fakeplace = models.GmapAnswer("fakeplace")
-    assert fakeplace.lat == 5 \
-        and fakeplace.lon == 5 \
+    assert fakeplace.lat == 5 and fakeplace.lon == 5 \
             and fakeplace.formatted_address == "leboncoin"
 
 
@@ -137,10 +136,14 @@ def test_AJAX_answer_OK(monkeypatch):
         "formatted_address": "address",
         "accurate": True,
         "title": "titre",
-        "stories": "Once upon"
+        "stories": "Once upon",
+        "lat": 1234.5,
+        "lon": 5432.1,
+        "img": "/static/img/1234.5,5432.1.png"
     }
 
     assert fakeplace == expected
+
 
 def test_UserQuestion_attr_OK():
     question1 = "Bonsoir Grandpy, j'espère que tu as passé une belle semaine. Est-ce que tu pourrais m'indiquer l'adresse de la tour eiffel? Merci d'avance et salutations à Mamie."

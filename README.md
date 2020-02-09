@@ -9,15 +9,10 @@ Setup consist in creating a `.env` file in the main folder with this syntax :
 GMAP_API_KEY=YourApiKeyWithoutQuote
 ```
 
-## TDD
-This project is codded using Test Driven Development. Here are 2 videos about testing programs :
-- [Rails Conf 2013 The Magic Tricks of Testing](https://youtu.be/URSWYvyc42M)
-- [Advanced Test Driven Development](https://vimeo.com/97516288)
-
 ## Flask
 To test the app in the Project folder:
 ```
-export FLASK_APP=app/views.py
+export FLASK_APP=app
 python -m flask run
 ```
 Useful ressources about Flask :
@@ -25,3 +20,9 @@ Useful ressources about Flask :
 - [flask_sqlalchemy](https://flask-sqlalchemy.palletsprojects.com/en/2.x/) but no DB is required for this project
 - [Jinja 2](https://jinja.palletsprojects.com/en/2.10.x/templates/)
 - [lesson OpenClassroom](https://openclassrooms.com/fr/courses/4425066-concevez-un-site-avec-flask)
+
+## TDD
+This project is codded using Test Driven Development. Here are 2 videos about testing programs :
+- [Rails Conf 2013 The Magic Tricks of Testing](https://youtu.be/URSWYvyc42M)
+- [Advanced Test Driven Development](https://vimeo.com/97516288)
+

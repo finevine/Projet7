@@ -71,7 +71,7 @@ function append_message(text, from, map) {
     image.setAttribute("src", text);
     image.setAttribute("width", "300");
     image.setAttribute("height", "200");
-    image.setAttribute("alt", "Map of the place");
+    image.setAttribute("alt", "Je n'ai pas retrouvé la carte, désolé");
     message_text.appendChild(image)
   } else {
   message_text.innerHTML = text;
