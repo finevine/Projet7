@@ -6,7 +6,7 @@
 ## Setup
 Setup consist in creating a `.env` file in the main folder with this syntax :
 ```
-GMAP_API_KEY=YourApiKeyWithoutQuote
+GMAP_API_KEY=YourApiKeyWithoutQuote 
 ```
 
 ## Flask
