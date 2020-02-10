@@ -33,6 +33,11 @@ body,html{
     overflow-y: auto;
     white-space: nowrap;
 }
+.msg_cotainer > img {
+    max-width: 100%;
+    height: auto;
+  }
+
 .msg_card_body{
     overflow-y: auto;
 }
@@ -63,6 +68,9 @@ border-radius: 0 0 15px 15px !important;
     color:white !important;
     height: 60px !important;
     overflow-y: auto;
+}
+.type_msg{
+    height: 4rem;
 }
 .type_msg:focus{
     box-shadow:none !important;

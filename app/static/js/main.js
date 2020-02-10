@@ -1,5 +1,28 @@
 const IMG_PATH= "/static/img"
 
+
+var clear_messageToSend = function() {
+  document.getElementById("messageToSend").value = "";
+}
+
+
+function send_question () {
+  var question = document.getElementById("messageToSend").value;
+  get_answer(question);
+}
+
+
+
+function hello(){
+  const name = document.querySelector("meta[name='user_name']").getAttribute('content');
+  console.log(name);
+  setTimeout(function(){
+    var intro = "Salut ".concat(name).concat(". C'est chouette de te parler ! Je connais plein d'anecdote en géographie dans le monde entier : y'a qu'à demander !");
+    append_message(intro, 'bot', false);
+  }, 1500);
+}
+
+
 function get_answer(question) {
     var xhr = new XMLHttpRequest(),
         method = "GET",
@@ -20,22 +43,46 @@ function get_answer(question) {
     clear_messageToSend();
   }
 
-var clear_messageToSend = function() {
-  document.getElementById("messageToSend").value = "";
-}
 
 function bot_says(api_answer) {
+  const address = [
+    "Oui, ça je connais, voilà où ça se trouve : ",
+    "Alors, si mes souvenirs sont bon c'est là : ",
+    "Ça remonte à y'a longtemps mais je crois que c'est ici : ",
+    "Oui oui oui ! Voilà où c'est : ",
+    "Bien sûr mon petit, voici l'adresse : ",
+    "Of course my dear : ",
+    "De mon temps c'était là : ",
+    "Fouilla, tu m'en demandes beaucoup ! ",
+    "Regarde donc le bottin ! Mais attend voir je crois savoir : "
+  ]
   // Bot speaks here (address, map, stories...)
-  append_message("Oui, ça je connais, voilà où ça se trouve : ".concat(api_answer.formatted_address),'bot', false);
-
-  setTimeout(function(){
-    append_message("Et d'ailleurs sais tu que : ".concat(api_answer.stories),'bot', false)
-  }, 500);
-
+  var intro_address = address[Math.floor(Math.random() * address.length)]
+  append_message(intro_address.concat(api_answer.formatted_address),'bot', false);
+  
   setTimeout(function(){
     append_message(api_answer.img, 'bot', true)
-  }, 500);
+  }, 1500);
+  
+  const stories = [
+    "Et alors voilà que ",
+    "À ce sujet, sais tu que : ",
+    "De mon temps tout le monde savait que : ",
+    "Retiens bien ça : ",
+    "Si tu demandais à ton père, il te dirait que : ",
+    "Attends voir tu connais celle-là ? ",
+    "Si on t'en parle, tu pourrais te rappeler de ça ? ",
+    "J'ai une mémoire d'éléphant ! Sais-tu que : ",
+    "Je suis sûr que tu ne savais pas que : "
+  ]
+  // Bot speaks here (address, map, stories...)
+  var intro_stories = stories[Math.floor(Math.random() * stories.length)]
+
+  setTimeout(function(){
+    append_message(intro_stories.concat(api_answer.stories),'bot', false)
+  }, 2500);
 }
+
 
 function append_message(text, from, map) {
   var message = document.createElement("div");
@@ -44,7 +91,7 @@ function append_message(text, from, map) {
   var img = document.createElement("img");
   img.className = 'img_cont_msg rounded-circle user_img_msg';
   img_cont.appendChild(img);
-  var message_text = document.createElement('div');
+  var message_text = document.createElement('p');
 
   switch (from) {
     case "bot":
@@ -66,6 +113,7 @@ function append_message(text, from, map) {
     default:
       var message = '';
   }
+
   if (map == true) {
     var image = document.createElement("IMG");
     image.setAttribute("src", text);
@@ -74,7 +122,7 @@ function append_message(text, from, map) {
     image.setAttribute("alt", "Je n'ai pas retrouvé la carte, désolé");
     message_text.appendChild(image)
   } else {
-  message_text.innerHTML = text;
+  message_text.textContent = text;
   }
   var chat = document.getElementById('chat_body');
   chat.appendChild(message); 
