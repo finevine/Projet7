@@ -7,3 +7,6 @@ app.config["UPLOAD_FOLDER"] = ""
 # app.config["SEND_FILE_MAX_AGE_DEFAULT"] = timedelta(seconds=30)
 
 from . import views
+
+if __name__ == '__main__':
+    app.run()
