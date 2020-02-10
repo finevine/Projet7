@@ -9,6 +9,14 @@
 {% block content %}
     <div class="col col-md-11 col-xl-8 chat">
         <div class="container col-md-5">
+        <div class="img_cont">
+            <img src="{{ url_for('static', filename='img/grandpy.jpg') }}" class="rounded-circle user_img" onload="hello()">
+            <span class="online_icon"></span>
+        </div>
+        <div class="user_info">
+            <span >Chat avec Grandpy</span>
+        </div>
+        
             <input id="name-input" type="text" id="name" name="name" required minlength="4" maxlength="25" size="10" placeholder="Quel est votre nom ?">
             <a href="/chat?user=Inconnu" id="chat-link">
                 <button type="button" class="btn btn-light">Parler à Grandpy&nbsp;<i class="fas fa-paper-plane"></i></button>

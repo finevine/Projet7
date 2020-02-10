@@ -12,14 +12,13 @@ function send_question () {
 }
 
 
-
 function hello(){
   const name = document.querySelector("meta[name='user_name']").getAttribute('content');
   console.log(name);
   setTimeout(function(){
-    var intro = "Salut ".concat(name).concat(". C'est chouette de te parler ! Je connais plein d'anecdote en géographie dans le monde entier : y'a qu'à demander !");
+    var intro = "Salut ".concat(name).concat(". C'est chouette de te parler ! Je connais plein d'anecdote en géographie dans le monde entier: y'a qu'à demander !");
     append_message(intro, 'bot', false);
-  }, 1500);
+  }, 200);
 }
 
 
@@ -45,6 +44,7 @@ function get_answer(question) {
 
 
 function bot_says(api_answer) {
+  var chat = document.getElementById('chat_body');
   const address = [
     "Oui, ça je connais, voilà où ça se trouve : ",
     "Alors, si mes souvenirs sont bon c'est là : ",
@@ -59,11 +59,11 @@ function bot_says(api_answer) {
   // Bot speaks here (address, map, stories...)
   var intro_address = address[Math.floor(Math.random() * address.length)]
   append_message(intro_address.concat(api_answer.formatted_address),'bot', false);
-  
+
   setTimeout(function(){
-    append_message(api_answer.img, 'bot', true)
+    append_message(api_answer.img, 'bot', true);
   }, 1500);
-  
+
   const stories = [
     "Et alors voilà que ",
     "À ce sujet, sais tu que : ",
@@ -76,22 +76,32 @@ function bot_says(api_answer) {
     "Je suis sûr que tu ne savais pas que : "
   ]
   // Bot speaks here (address, map, stories...)
-  var intro_stories = stories[Math.floor(Math.random() * stories.length)]
+  var intro_stories = stories[Math.floor(Math.random() * stories.length)];
 
   setTimeout(function(){
-    append_message(intro_stories.concat(api_answer.stories),'bot', false)
+    append_message(intro_stories.concat(api_answer.stories),'bot', false);
+    var chat = document.getElementById('chat_body');
+    chat.scrollTop = chat.scrollHeight;
   }, 2500);
 }
 
 
 function append_message(text, from, map) {
   var message = document.createElement("div");
-  var img_cont = document.createElement("div");
-  img_cont.className = 'img_cont_msg';
+
+  var loader = document.createElement("div");
+  loader.className = "loader";
+  var spin = document.createElement("div");
+  spin.appendChild(loader);
+
   var img = document.createElement("img");
   img.className = 'img_cont_msg rounded-circle user_img_msg';
+
+  var img_cont = document.createElement("div");
+  img_cont.className = 'img_cont_msg';
   img_cont.appendChild(img);
-  var message_text = document.createElement('p');
+
+  var message_text = document.createElement('div');
 
   switch (from) {
     case "bot":
@@ -114,17 +124,30 @@ function append_message(text, from, map) {
       var message = '';
   }
 
-  if (map == true) {
-    var image = document.createElement("IMG");
-    image.setAttribute("src", text);
-    image.setAttribute("width", "300");
-    image.setAttribute("height", "200");
-    image.setAttribute("alt", "Je n'ai pas retrouvé la carte, désolé");
-    message_text.appendChild(image)
-  } else {
-  message_text.textContent = text;
-  }
   var chat = document.getElementById('chat_body');
   chat.appendChild(message); 
+  if (from == "bot"){
+    message_text.appendChild(spin)
+    setTimeout(function(){
+      spin.innerHTML = " ";
+      if (map == true) {
+        var image = document.createElement("IMG");
+        image.setAttribute("src", text);
+        image.setAttribute("width", "300");
+        image.setAttribute("height", "200");
+        image.setAttribute("alt", "Je n'ai pas retrouvé la carte, désolé");
+        message_text.appendChild(image);
+        var chat = document.getElementById('chat_body');
+        chat.scrollTop = chat.scrollHeight;
+      } else {
+        message_text.textContent = text;
+      };
+      var chat = document.getElementById('chat_body');
+      chat.scrollTop = chat.scrollHeight;
+    }, 1000);
+  } else {
+    message_text.textContent = text;
+  }
+
   chat.scrollTop = chat.scrollHeight;
 }
