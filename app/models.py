@@ -194,12 +194,12 @@ class UserQuestion():
         ATTR:
             place(str): place found with manual NLP'''
         # split into words by white space and isolate punctuation
-        words = text.replace('?', ' ?').replace('.', ' .').replace('!', ' !').split()
+        words = text.lower().replace('?', ' ?').replace('.', ' .').replace('!', ' !').split()
         # isolate intent
         for intent in INTENT:
             try:
                 indexBegin = words.index(intent)
-                words = words[indexBegin:]
+                words = words[indexBegin + 1:]
                 break
             except ValueError:
                 pass
