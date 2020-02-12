@@ -40,7 +40,7 @@ function get_answer(question) {
     // append_user_message(question);
     append_message(question, 'user', false)
     clear_messageToSend();
-  }
+}
 
 
 function bot_says(api_answer) {
