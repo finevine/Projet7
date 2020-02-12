@@ -40,6 +40,9 @@
 		var input = document.getElementById("name-input");
 		input.addEventListener("keyup", function(event) {
 		if (event.keyCode === 13 && document.getElementById("name-input").value) {
+                var name = document.getElementById("name-input").value;
+                var link = document.getElementById("chat-link");
+                link.setAttribute("href", "/chat?user=" + name);
                 event.preventDefault();
                 document.getElementById("chat-link").click();
 		}
