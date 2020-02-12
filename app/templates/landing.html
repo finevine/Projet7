@@ -17,7 +17,7 @@
             <span >Chat avec Grandpy</span>
         </div>
         
-            <input id="name-input" type="text" id="name" name="name" required minlength="4" maxlength="25" size="10" placeholder="Quel est votre nom ?">
+            <input id="name-input" type="text" id="name" name="name" required maxlength="25" size="10" placeholder="Quel est votre nom ?" spellcheck="false" autocomplete="off">
             <a href="/chat?user=Inconnu" id="chat-link">
                 <button type="button" class="btn btn-light">Parler à Grandpy&nbsp;<i class="fas fa-paper-plane"></i></button>
             </a>
@@ -35,4 +35,15 @@
         return false;
         }
     </script>
+	<script>
+		// Script to press buttonToSend if enter is pressed
+		var input = document.getElementById("name-input");
+		input.addEventListener("keyup", function(event) {
+		if (event.keyCode === 13 && document.getElementById("name-input").value) {
+                event.preventDefault();
+                document.getElementById("chat-link").click();
+		}
+		});
+	</script>
+
 {% endblock %}
