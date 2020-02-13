@@ -213,10 +213,9 @@ class UserQuestion():
         punctuation = '!"#$%&\'()*+,-./:;<=>?@[\\]^_`{|}~'
         table = str.maketrans(punctuation, " " * len(punctuation))
         stripped = [w.translate(table).lower() for w in question]
-        # import pdb; pdb.set_trace()
+        # remove stopwords
         if stripped:
-            sep = " "
-            self.place = sep.join([w for w in " ".join(stripped).split() if w not in STOPWORDS])
+            self.place = " ".join([w for w in " ".join(stripped).split() if w not in STOPWORDS])
         else:
             self.place = ""
 

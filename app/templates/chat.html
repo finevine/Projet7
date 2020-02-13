@@ -49,9 +49,9 @@
 {% block scripts %}
 	<script>
 		// Script to press buttonToSend if enter is pressed
-		var input = document.getElementById("messageToSend");
+		let input = document.getElementById("messageToSend");
 		input.addEventListener("keyup", function(event) {
-		if (event.keyCode === 13 && document.getElementById("messageToSend").value) {
+		if (event.keyCode === 13 && input.value) {
 				event.preventDefault();
 				document.getElementById("buttonToSend").click();
 		}
